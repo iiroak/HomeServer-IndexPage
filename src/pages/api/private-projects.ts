@@ -4,9 +4,7 @@ const PRIVATE_URL = process.env.PRIVATE_INDEX_URL || "http://index-private:3000"
 
 export const GET: APIRoute = async () => {
   try {
-    const res = await fetch(`${PRIVATE_URL}/projects`, {
-      signal: AbortSignal.timeout(5000),
-    });
+    const res = await fetch(`${PRIVATE_URL}/projects`);
 
     if (!res.ok) {
       return new Response(JSON.stringify([]), {

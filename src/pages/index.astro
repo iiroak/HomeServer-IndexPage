@@ -532,15 +532,16 @@ function hrefOrNone(u: string) {
     </article>`;
   }
 
-  loginBtn?.addEventListener("click", async () => {
+  async function loadPrivateProjects() {
     if (privateLoaded) return;
-
     loginBtn.style.opacity = "0.5";
     loginBtn.style.pointerEvents = "none";
     privateLoader?.classList.remove("hidden");
 
     try {
-      const res = await fetch("/api/private-projects");
+      const res = await fetch("/api/private-projects", {
+        credentials: "same-origin",
+      });
       if (!res.ok) throw new Error("not ok");
       const data = await res.json();
 
@@ -581,7 +582,17 @@ function hrefOrNone(u: string) {
       loginBtn.style.opacity = "1";
       loginBtn.style.pointerEvents = "auto";
     }
+  }
+
+  loginBtn?.addEventListener("click", () => {
+    if (privateLoaded) return;
+    window.location.href = "/api/login";
   });
+
+  if (new URLSearchParams(window.location.search).get("unlock") === "1") {
+    window.history.replaceState({}, "", window.location.pathname);
+    loadPrivateProjects();
+  }
 </script>
 
 <style>

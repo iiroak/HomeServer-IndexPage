@@ -6,11 +6,23 @@ services:
       - "4321:4321"
     environment:
       PRIVATE_INDEX_URL: http://index-private:3000
+    depends_on:
+      - index-private
     restart: unless-stopped
+    networks:
+      - index-net
 
   index-private:
     build: ../HomeServer-IndexPrivate
     container_name: index-private
     expose:
       - "3000"
+    environment:
+      PORT: "3000"
     restart: unless-stopped
+    networks:
+      - index-net
+
+networks:
+  index-net:
+    driver: bridge
