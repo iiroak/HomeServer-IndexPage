@@ -643,10 +643,9 @@ function hrefOrNone(u: string) {
 
   loginBtn?.addEventListener("click", () => {
     if (privateLoaded) return;
-    window.location.href = "/api/login";
+    privateLoader?.classList.remove("hidden");
+    loadPrivateProjects();
   });
-
-  loadPrivateProjects();
 </script>
 
 <style>
