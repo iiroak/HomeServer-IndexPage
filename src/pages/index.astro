@@ -490,7 +490,10 @@ function hrefOrNone(u: string) {
       return `
       <div class="service-link group rounded-2xl border p-5 transition hover:-translate-y-0.5 min-w-0" style="border-color: var(--link-border); background: var(--link-bg)" data-type="${l.type}" data-search="${linkSearch}">
         <div class="flex items-start justify-between gap-3">
-          <span class="text-base font-bold flex-1 min-w-0" style="color: var(--ink)">${l.name}</span>
+          <div class="flex-1 min-w-0">
+            <span class="text-base font-bold" style="color: var(--ink)">${l.name}</span>
+            <span class="ml-2 inline-flex rounded-full border px-2 py-0.5 text-[0.58rem] font-bold uppercase tracking-wider" style="border-color: var(--code-border); background: var(--code-bg); color: var(--blush-deep)">Privado</span>
+          </div>
           <div class="shrink-0">
             <span class="accent-light inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider ${acc.badgeL} border-current/20">${l.type}</span>
             <span class="accent-dark inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider ${accD.badgeD} border-current/20">${l.type}</span>
@@ -568,8 +571,23 @@ function hrefOrNone(u: string) {
         tmp.innerHTML = html.trim();
         const article = tmp.firstElementChild as HTMLElement;
         if (article) {
-          projectsGrid?.appendChild(article);
-          projectsEls.push(article);
+          const projectKey = article.dataset.project;
+          const existing = projectsEls.find((project) => project.dataset.project === projectKey);
+
+          if (existing) {
+            const existingLinksGrid = existing.querySelector<HTMLElement>(".grid.gap-4.grid-cols-1");
+            const privateLinks = Array.from(article.querySelectorAll<HTMLElement>(".service-link"));
+
+            for (const link of privateLinks) {
+              existingLinksGrid?.appendChild(link);
+            }
+
+            const mergedSearch = [existing.dataset.search || "", article.dataset.search || ""].join(" ").trim();
+            existing.dataset.search = mergedSearch;
+          } else {
+            projectsGrid?.appendChild(article);
+            projectsEls.push(article);
+          }
         }
       }
 
