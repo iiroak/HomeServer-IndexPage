@@ -77,9 +77,9 @@ function hrefOrNone(u: string) {
   title="Index - Directorio de paginas de iroaK"
   description="Indice privado para encontrar rapidamente URLs y comandos de proyectos del homeserver."
 >
-  <main class="relative overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8">
+  <main id="main-content" class="relative overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8">
     <!-- Decorative blobs -->
-    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+    <div class="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
       <div class="absolute left-0 top-0 h-64 w-64 -translate-x-1/3 -translate-y-1/3 rounded-full blur-[120px]" style="background: var(--blob-pink)"></div>
       <div class="absolute right-0 top-1/4 h-80 w-80 translate-x-1/3 rounded-full blur-[100px]" style="background: var(--blob-lav)"></div>
       <div class="absolute bottom-0 left-1/3 h-72 w-72 rounded-full blur-[100px]" style="background: var(--blob-cream)"></div>
@@ -297,7 +297,7 @@ function hrefOrNone(u: string) {
                                   <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
                                 </svg>
                               </a>
-                              <button class="copy-btn rounded-lg p-1.5 transition" style="color: var(--ink-muted)" type="button" data-copy={u.url} title="Copiar">
+                              <button class="copy-btn rounded-lg p-1.5 transition" style="color: var(--ink-muted)" type="button" data-copy={u.url} title="Copiar" aria-label="Copiar URL">
                                 <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                                 </svg>
@@ -313,7 +313,7 @@ function hrefOrNone(u: string) {
                           <span class="absolute -top-3 left-3 inline-flex rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider" style="border-color: var(--code-border); background: var(--code-bg); color: var(--ink-soft)">Comando</span>
                           <div class="code-block flex items-start justify-between gap-2 min-w-0 rounded-xl">
                             <code class="text-xs leading-relaxed break-all flex-1 min-w-0">{link.command}</code>
-                            <button class="copy-btn shrink-0 rounded-lg p-1.5 transition" style="color: var(--ink-muted)" type="button" data-copy={link.command} title="Copiar comando">
+                            <button class="copy-btn shrink-0 rounded-lg p-1.5 transition" style="color: var(--ink-muted)" type="button" data-copy={link.command} title="Copiar comando" aria-label="Copiar comando">
                               <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
                               </svg>
@@ -651,5 +651,17 @@ function hrefOrNone(u: string) {
   }
   .animate-spin {
     animation: spin 0.8s linear infinite;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .service-link {
+      transition: none;
+    }
+    .service-link:hover {
+      transform: none;
+    }
+    .animate-spin {
+      animation: none;
+    }
   }
 </style>
