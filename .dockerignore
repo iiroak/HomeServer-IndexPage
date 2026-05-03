@@ -3,6 +3,9 @@ dist
 .astro
 .git
 .gitignore
+.dockerignore
 Dockerfile
+docker-compose.yaml
 README.md
+LICENSE
 page.txt
