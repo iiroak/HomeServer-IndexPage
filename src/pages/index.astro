@@ -542,7 +542,17 @@ function hrefOrNone(u: string) {
       const res = await fetch("/api/private-projects", {
         credentials: "same-origin",
       });
-      if (!res.ok) throw new Error("not ok");
+      if (!res.ok) {
+        let message = `HTTP ${res.status}`;
+        try {
+          const errorData = await res.json();
+          message = errorData.message || errorData.error || message;
+        } catch {
+          // Cloudflare 502 pages are HTML, not JSON.
+        }
+        throw new Error(message);
+      }
+
       const data = await res.json();
 
       if (!data || data.length === 0) {
@@ -577,8 +587,9 @@ function hrefOrNone(u: string) {
 
       privateLoaded = true;
       applyFilters();
-    } catch {
-      privateLoader!.innerHTML = '<span class="text-xs" style="color: var(--ink-muted)">No se pudo cargar</span>';
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "No se pudo cargar";
+      privateLoader!.innerHTML = `<span class="text-xs" style="color: var(--ink-muted)">No se pudo cargar: ${message}</span>`;
       loginBtn.style.opacity = "1";
       loginBtn.style.pointerEvents = "auto";
     }
