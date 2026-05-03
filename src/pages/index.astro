@@ -1,0 +1,605 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/global.css";
+import projects from "../data/projects.json";
+
+interface LinkUrl {
+  label: string;
+  url: string;
+}
+
+interface Link {
+  name: string;
+  url?: string;
+  urls?: LinkUrl[];
+  command?: string;
+  type: string;
+  description: string;
+}
+
+interface Project {
+  name: string;
+  description: string;
+  icon?: string;
+  accent?: string;
+  accentDark?: string;
+  tags: string[];
+  links: Link[];
+}
+
+const typed = projects as Project[];
+const totalLinks = typed.reduce((sum, p) => sum + p.links.length, 0);
+const allTypes = Array.from(new Set(typed.flatMap(p => p.links.map(l => l.type)))).sort();
+
+type AccentDef = { badgeL: string; badgeD: string; chipL: string; chipD: string };
+
+const accentDefs: Record<string, AccentDef> = {
+  pink: {
+    badgeL: "bg-[#ffabc2]/20 text-[#b05a6e]",
+    badgeD: "bg-[#ffabc2]/15 text-[#ffbccc]",
+    chipL:  "bg-[#ffabc2]/12 text-[#9e4a5e]",
+    chipD:  "bg-[#ffabc2]/10 text-[#ffbccc]",
+  },
+  crimson: {
+    badgeL: "bg-[#d2303c]/12 text-[#a0262e]",
+    badgeD: "bg-[#d2303c]/12 text-[#e85862]",
+    chipL:  "bg-[#d2303c]/10 text-[#8e1e26]",
+    chipD:  "bg-[#d2303c]/10 text-[#e85862]",
+  },
+  lavender: {
+    badgeL: "bg-[#d7deec]/50 text-[#5a6380]",
+    badgeD: "bg-[#d7deec]/15 text-[#d7deec]",
+    chipL:  "bg-[#d7deec]/40 text-[#4e5570]",
+    chipD:  "bg-[#d7deec]/12 text-[#d7deec]",
+  },
+  cream: {
+    badgeL: "bg-[#ffe6c1]/50 text-[#8a6d40]",
+    badgeD: "bg-[#ffe6c1]/15 text-[#ffe6c1]",
+    chipL:  "bg-[#ffe6c1]/50 text-[#7a5d30]",
+    chipD:  "bg-[#ffe6c1]/12 text-[#ffe6c1]",
+  },
+  peach: {
+    badgeL: "bg-[#f4a988]/20 text-[#b06040]",
+    badgeD: "bg-[#f4a988]/15 text-[#f5b598]",
+    chipL:  "bg-[#f4a988]/15 text-[#9e5030]",
+    chipD:  "bg-[#f4a988]/12 text-[#f5b598]",
+  },
+};
+
+const fallbackAccent: AccentDef = accentDefs.pink;
+
+function hrefOrNone(u: string) {
+  return u.startsWith("http") || u.startsWith("rdp") ? u : `https://${u}`;
+}
+---
+
+<Layout
+  title="Index - Directorio de paginas de iroaK"
+  description="Indice privado para encontrar rapidamente URLs y comandos de proyectos del homeserver."
+>
+  <main class="relative overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8">
+    <!-- Decorative blobs -->
+    <div class="pointer-events-none absolute inset-0 overflow-hidden">
+      <div class="absolute left-0 top-0 h-64 w-64 -translate-x-1/3 -translate-y-1/3 rounded-full blur-[120px]" style="background: var(--blob-pink)"></div>
+      <div class="absolute right-0 top-1/4 h-80 w-80 translate-x-1/3 rounded-full blur-[100px]" style="background: var(--blob-lav)"></div>
+      <div class="absolute bottom-0 left-1/3 h-72 w-72 rounded-full blur-[100px]" style="background: var(--blob-cream)"></div>
+    </div>
+
+    <div class="relative mx-auto max-w-7xl">
+      <!-- Hero -->
+      <header class="pt-10 sm:pt-16">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          <div class="inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em]" style="border-color: var(--border); background: var(--card-bg); color: var(--ink-soft)">
+            <svg class="size-3.5" style="color: var(--blush-deep)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            paginas de iroak
+          </div>
+
+          <div class="flex items-center gap-2">
+            <!-- Theme toggle -->
+            <button id="themeToggle" class="shrink-0 rounded-2xl border p-2.5 transition hover:scale-105" style="border-color: var(--border); background: var(--card-bg)" aria-label="Cambiar tema" type="button">
+              <svg class="theme-icon-light size-4" style="color: var(--ink-soft)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+              </svg>
+              <svg class="theme-icon-dark size-4" style="color: var(--ink-soft)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+              </svg>
+            </button>
+
+            <!-- Login / Private toggle -->
+            <button id="loginBtn" class="shrink-0 rounded-2xl border p-2.5 transition hover:scale-105" style="border-color: var(--border); background: var(--card-bg)" aria-label="Desbloquear privados" type="button" title="Desbloquear URLs privadas">
+              <svg class="size-4" style="color: var(--ink-soft)" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/><circle cx="12" cy="16" r="1"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-8 grid gap-8 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
+          <div>
+            <h1 class="max-w-4xl text-4xl font-black tracking-tight sm:text-6xl" style="color: var(--ink)">
+              Index
+            </h1>
+            <p class="mt-4 max-w-2xl text-base leading-8 sm:text-lg" style="color: var(--ink-soft)">
+              Todas tus URLs y comandos en un solo lugar. Busca, filtra y copia lo que necesites de tus proyectos.
+            </p>
+          </div>
+
+          <!-- Stats -->
+          <div class="card p-3 sm:p-6">
+            <div class="grid grid-cols-3 gap-2 sm:gap-3 text-center">
+              <div class="rounded-2xl p-2 sm:p-4" style="background: rgba(255,171,194,0.08)">
+                <p class="text-2xl sm:text-3xl font-black" style="color: var(--ink)">{typed.length}</p>
+                <p class="mt-0.5 text-[0.6rem] sm:text-xs font-semibold uppercase tracking-wider" style="color: var(--ink-muted)">Proyectos</p>
+              </div>
+              <div class="rounded-2xl p-2 sm:p-4" style="background: rgba(255,230,193,0.10)">
+                <p class="text-2xl sm:text-3xl font-black" style="color: var(--ink)">{totalLinks}</p>
+                <p class="mt-0.5 text-[0.6rem] sm:text-xs font-semibold uppercase tracking-wider" style="color: var(--ink-muted)">URLs</p>
+              </div>
+              <div class="rounded-2xl p-2 sm:p-4" style="background: rgba(215,222,236,0.10)">
+                <p class="text-2xl sm:text-3xl font-black" style="color: var(--ink)">{allTypes.length}</p>
+                <p class="mt-0.5 text-[0.6rem] sm:text-xs font-semibold uppercase tracking-wider" style="color: var(--ink-muted)">Tipos</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Search & Filters -->
+      <section class="card mt-10 p-4 sm:p-5 lg:sticky lg:top-4 lg:z-20">
+        <div class="flex flex-wrap items-center gap-3">
+          <!-- Search -->
+          <label class="relative flex-1 min-w-0 order-1">
+            <span class="sr-only">Buscar</span>
+            <svg class="pointer-events-none absolute left-4 top-1/2 size-[1.15rem] -translate-y-1/2" style="color: var(--ink-muted)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+            </svg>
+            <input
+              id="searchInput"
+              type="search"
+              autocomplete="off"
+              placeholder="Buscar por proyecto, URL, comando, tag..."
+              class="w-full rounded-2xl border py-3.5 pl-11 pr-4 text-sm placeholder:opacity-50 focus:outline-none focus:ring-4"
+              style="border-color: var(--border); background: var(--input-bg); color: var(--ink); --tw-ring-color: rgba(255,171,194,0.2)"
+            />
+          </label>
+
+          <!-- Mobile filter toggle -->
+          <button
+            id="filterToggle"
+            class="lg:hidden shrink-0 order-2 rounded-2xl border p-3 transition"
+            style="border-color: var(--border); background: var(--input-bg); color: var(--ink-soft)"
+            aria-label="Filtros"
+            type="button"
+          >
+            <svg id="filterIcon" class="size-4 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+            </svg>
+          </button>
+
+          <!-- Filter group -->
+          <div id="filterGroup" class="hidden lg:flex flex-wrap items-center gap-3 w-full lg:w-auto order-3 mt-3 lg:mt-0">
+            <select
+              id="typeFilter"
+              class="flex-1 lg:flex-none lg:max-w-[11rem] rounded-2xl border py-3 pl-4 text-sm font-medium focus:outline-none focus:ring-4"
+              style="border-color: var(--border); background: var(--input-bg); color: var(--ink); --tw-ring-color: rgba(255,171,194,0.2)"
+            >
+              <option value="all">Todos los tipos</option>
+              {allTypes.map(t => <option value={t}>{t}</option>)}
+            </select>
+
+            <select
+              id="projectFilter"
+              class="flex-1 lg:flex-none lg:max-w-[13rem] rounded-2xl border py-3 pl-4 text-sm font-medium focus:outline-none focus:ring-4"
+              style="border-color: var(--border); background: var(--input-bg); color: var(--ink); --tw-ring-color: rgba(255,171,194,0.2)"
+            >
+              <option value="all">Todos los proyectos</option>
+              {typed.map(p => <option value={p.name.toLowerCase()}>{p.name}</option>)}
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results count (outside card) -->
+      <p class="mt-4 text-center text-xs font-medium" style="color: var(--ink-muted)">
+        Mostrando <span id="resultCount" class="font-semibold" style="color: var(--ink-soft)">{totalLinks}</span> resultados
+      </p>
+
+      <!-- Projects -->
+      <section class="mt-6 grid gap-5" id="projectsGrid">
+        {typed.map(project => {
+          const searchable = [
+            project.name,
+            project.description,
+            ...project.tags,
+            ...project.links.flatMap(l => {
+              const urls = l.urls?.map(u => `${u.label} ${u.url}`) ?? (l.url ? [l.url] : []);
+              return [l.name, ...urls, l.command ?? '', l.type, l.description];
+            })
+          ].join(' ').toLowerCase();
+
+          const acc = accentDefs[project.accent ?? 'pink'] ?? fallbackAccent;
+          const accDark = accentDefs[project.accentDark ?? project.accent ?? 'pink'] ?? fallbackAccent;
+
+          return (
+            <article
+              class="project-card card overflow-hidden"
+              data-search={searchable}
+              data-project={project.name.toLowerCase()}
+            >
+              <div class="flex flex-col gap-6 p-5 sm:p-6 lg:grid lg:grid-cols-[21rem_1fr]">
+                {/* Project info */}
+                <div>
+                  <div class="flex items-center gap-4">
+                    <div class={`accent-light inline-flex size-14 shrink-0 items-center justify-center rounded-2xl ${acc.badgeL}`}>
+                      {project.icon ? <img src={project.icon} alt="" class="size-10 rounded-xl object-contain" loading="lazy" /> : <span class="text-xl font-black">{project.name.slice(0, 2).toUpperCase()}</span>}
+                    </div>
+                    <div class={`accent-dark inline-flex size-14 shrink-0 items-center justify-center rounded-2xl ${accDark.badgeD}`}>
+                      {project.icon ? <img src={project.icon} alt="" class="size-10 rounded-xl object-contain" loading="lazy" /> : <span class="text-xl font-black">{project.name.slice(0, 2).toUpperCase()}</span>}
+                    </div>
+                    <div class="min-w-0">
+                      <h2 class="text-2xl font-black tracking-tight truncate" style="color: var(--ink)">{project.name}</h2>
+                    </div>
+                  </div>
+                  <p class="mt-4 text-sm leading-6" style="color: var(--ink-soft)">{project.description}</p>
+                  <div class="mt-4 flex flex-wrap gap-2">
+                    {project.tags.map(tag => (
+                      <>
+                        <span class={`accent-light tag-pill border ${acc.chipL} border-current/10`}>#{tag}</span>
+                        <span class={`accent-dark tag-pill border ${accDark.chipD} border-current/10`}>#{tag}</span>
+                      </>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Links */}
+                <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 min-w-0">
+                  {project.links.map(link => {
+                    const allUrls: LinkUrl[] = link.urls ?? (link.url ? [{ label: link.name, url: link.url }] : []);
+                    const searchData = [
+                      project.name, project.description, ...project.tags,
+                      link.name, ...allUrls.flatMap(u => [u.label, u.url]),
+                      link.command ?? '', link.type, link.description
+                    ].join(' ').toLowerCase();
+
+                    return (
+                    <div
+                      class="service-link group rounded-2xl border p-5 transition hover:-translate-y-0.5 min-w-0"
+                      style="border-color: var(--link-border); background: var(--link-bg)"
+                      data-type={link.type}
+                      data-search={searchData}
+                    >
+                      {/* Header: name left, type badge right */}
+                      <div class="flex items-start justify-between gap-3">
+                        <span class="text-base font-bold flex-1 min-w-0" style="color: var(--ink)">{link.name}</span>
+                        <div class="shrink-0">
+                          <span class={`accent-light inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider ${acc.badgeL} border-current/20`}>
+                            {link.type}
+                          </span>
+                          <span class={`accent-dark inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider ${accDark.badgeD} border-current/20`}>
+                            {link.type}
+                          </span>
+                        </div>
+                      </div>
+                      <p class="mt-2 text-sm leading-6" style="color: var(--ink-soft)">{link.description}</p>
+
+                      {/* URL blocks */}
+                      {allUrls.map(u => (
+                        <div class="relative mt-5">
+                          <span class="absolute -top-3 left-3 inline-flex rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider" style="border-color: var(--code-border); background: var(--code-bg); color: var(--ink-soft)">{u.label}</span>
+                          <div class="code-block flex items-center justify-between gap-2 min-w-0 rounded-xl">
+                            <span class="break-all text-xs flex-1 min-w-0">{u.url}</span>
+                            <div class="flex items-center gap-0.5 shrink-0">
+                              <a href={hrefOrNone(u.url)} target="_blank" rel="noreferrer" class="rounded-lg p-1.5 transition hover:text-[var(--blush-deep)]" style="color: var(--ink-muted)" title="Abrir">
+                                <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+                                </svg>
+                              </a>
+                              <button class="copy-btn rounded-lg p-1.5 transition" style="color: var(--ink-muted)" type="button" data-copy={u.url} title="Copiar">
+                                <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+
+                      {/* Command block */}
+                      {link.command && (
+                        <div class="relative mt-5">
+                          <span class="absolute -top-3 left-3 inline-flex rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider" style="border-color: var(--code-border); background: var(--code-bg); color: var(--ink-soft)">Comando</span>
+                          <div class="code-block flex items-start justify-between gap-2 min-w-0 rounded-xl">
+                            <code class="text-xs leading-relaxed break-all flex-1 min-w-0">{link.command}</code>
+                            <button class="copy-btn shrink-0 rounded-lg p-1.5 transition" style="color: var(--ink-muted)" type="button" data-copy={link.command} title="Copiar comando">
+                              <svg class="size-3.5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )})}
+                </div>
+              </div>
+            </article>
+          );
+        })}
+      </section>
+
+      <!-- Empty state -->
+      <section id="emptyState" class="card mt-8 hidden p-12 text-center">
+        <svg class="mx-auto size-12" style="color: var(--ink-muted)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <p class="mt-5 text-xl font-bold" style="color: var(--ink)">Sin resultados</p>
+        <p class="mt-2 text-sm" style="color: var(--ink-soft)">Prueba con otro nombre, tag, tipo o proyecto.</p>
+      </section>
+
+      <!-- Private projects loader indicator -->
+      <div id="privateLoader" class="hidden mt-6 text-center">
+        <span class="inline-flex items-center gap-2 text-sm" style="color: var(--ink-muted)">
+          <svg class="size-4 animate-spin" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Cargando privados...
+        </span>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // ── Theme init & toggle ──
+  const html = document.documentElement;
+  const themeToggle = document.getElementById("themeToggle");
+
+  const saved = localStorage.getItem("homeserver-theme") || "dark";
+  html.setAttribute("data-theme", saved);
+
+  themeToggle?.addEventListener("click", () => {
+    const next = html.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    html.setAttribute("data-theme", next);
+    localStorage.setItem("homeserver-theme", next);
+  });
+
+  // ── Filters ──
+  const searchInput = document.getElementById("searchInput") as HTMLInputElement | null;
+  const typeFilter = document.getElementById("typeFilter") as HTMLSelectElement | null;
+  const projectFilter = document.getElementById("projectFilter") as HTMLSelectElement | null;
+  const projectsEls = Array.from(document.querySelectorAll<HTMLElement>(".project-card"));
+  const resultCount = document.getElementById("resultCount");
+  const emptyState = document.getElementById("emptyState");
+  const filterToggle = document.getElementById("filterToggle");
+  const filterGroup = document.getElementById("filterGroup");
+  const filterIcon = document.getElementById("filterIcon");
+
+  function applyFilters() {
+    const query = searchInput?.value.trim().toLowerCase() || "";
+    const activeType = typeFilter?.value || "all";
+    const activeProject = projectFilter?.value || "all";
+    let visibleLinks = 0;
+
+    for (const project of projectsEls) {
+      const matchesProject = activeProject === "all" || project.dataset.project === activeProject;
+      if (!matchesProject) {
+        project.classList.add("hidden");
+        continue;
+      }
+
+      const links = Array.from(project.querySelectorAll<HTMLElement>(".service-link"));
+      let projectHasVisibleLink = false;
+
+      for (const link of links) {
+        const matchesType = activeType === "all" || link.dataset.type === activeType;
+        const linkSearch = link.dataset.search || "";
+        const projectSearch = project.dataset.search || "";
+        const matchesQuery = !query || linkSearch.includes(query) || projectSearch.includes(query);
+        const isVisible = matchesType && matchesQuery;
+
+        link.classList.toggle("hidden", !isVisible);
+        if (isVisible) {
+          visibleLinks++;
+          projectHasVisibleLink = true;
+        }
+      }
+
+      project.classList.toggle("hidden", !projectHasVisibleLink);
+    }
+
+    if (resultCount) resultCount.textContent = String(visibleLinks);
+    emptyState?.classList.toggle("hidden", visibleLinks > 0);
+  }
+
+  searchInput?.addEventListener("input", applyFilters);
+  typeFilter?.addEventListener("change", applyFilters);
+  projectFilter?.addEventListener("change", applyFilters);
+
+  // ── Mobile filter toggle ──
+  let filtersOpen = false;
+  filterToggle?.addEventListener("click", () => {
+    filtersOpen = !filtersOpen;
+    if (filtersOpen) {
+      filterGroup?.classList.remove("hidden");
+      filterGroup?.classList.add("flex", "flex-col");
+      filterIcon?.classList.add("rotate-180");
+    } else {
+      filterGroup?.classList.add("hidden");
+      filterGroup?.classList.remove("flex", "flex-col");
+      filterIcon?.classList.remove("rotate-180");
+    }
+  });
+
+  // ── Login / Private projects ──
+  const loginBtn = document.getElementById("loginBtn");
+  const privateLoader = document.getElementById("privateLoader");
+  const projectsGrid = document.getElementById("projectsGrid");
+  const projectsStat = document.querySelector("#projectsGrid")?.previousElementSibling?.querySelector("span") as HTMLElement | null;
+
+  let privateLoaded = false;
+
+  const privAccentDefs: Record<string, { badgeL: string; badgeD: string; chipL: string; chipD: string }> = {
+    pink:     { badgeL: "bg-[#ffabc2]/20 text-[#b05a6e]", badgeD: "bg-[#ffabc2]/15 text-[#ffbccc]", chipL: "bg-[#ffabc2]/12 text-[#9e4a5e]", chipD: "bg-[#ffabc2]/10 text-[#ffbccc]" },
+    crimson:  { badgeL: "bg-[#d2303c]/12 text-[#a0262e]", badgeD: "bg-[#d2303c]/12 text-[#e85862]", chipL: "bg-[#d2303c]/10 text-[#8e1e26]", chipD: "bg-[#d2303c]/10 text-[#e85862]" },
+    lavender: { badgeL: "bg-[#d7deec]/50 text-[#5a6380]", badgeD: "bg-[#d7deec]/15 text-[#d7deec]", chipL: "bg-[#d7deec]/40 text-[#4e5570]", chipD: "bg-[#d7deec]/12 text-[#d7deec]" },
+    cream:    { badgeL: "bg-[#ffe6c1]/50 text-[#8a6d40]", badgeD: "bg-[#ffe6c1]/15 text-[#ffe6c1]", chipL: "bg-[#ffe6c1]/50 text-[#7a5d30]", chipD: "bg-[#ffe6c1]/12 text-[#ffe6c1]" },
+    peach:    { badgeL: "bg-[#f4a988]/20 text-[#b06040]", badgeD: "bg-[#f4a988]/15 text-[#f5b598]", chipL: "bg-[#f4a988]/15 text-[#9e5030]", chipD: "bg-[#f4a988]/12 text-[#f5b598]" },
+  };
+
+  function privHref(u: string) {
+    return u.startsWith("http") || u.startsWith("rdp") ? u : "https://" + u;
+  }
+
+  function renderPrivateProject(p: any): string {
+    const acc = privAccentDefs[p.accent || "pink"] || privAccentDefs.pink;
+    const accD = privAccentDefs[p.accentDark || p.accent || "pink"] || privAccentDefs.pink;
+    const searchBase = [p.name, p.description, ...p.tags].join(" ").toLowerCase();
+
+    const linksHTML = p.links.map((l: any) => {
+      const allUrls: { label: string; url: string }[] = l.urls || (l.url ? [{ label: l.name, url: l.url }] : []);
+      const linkSearch = [p.name, p.description, ...p.tags, l.name, ...allUrls.flatMap((u: any) => [u.label, u.url]), l.command || "", l.type, l.description].join(" ").toLowerCase();
+
+      const urlBlocks = allUrls.map((u: any) => `
+        <div class="relative mt-5">
+          <span class="absolute -top-3 left-3 inline-flex rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider" style="border-color: var(--code-border); background: var(--code-bg); color: var(--ink-soft)">${u.label}</span>
+          <div class="code-block flex items-center justify-between gap-2 min-w-0 rounded-xl">
+            <span class="break-all text-xs flex-1 min-w-0">${u.url}</span>
+            <div class="flex items-center gap-0.5 shrink-0">
+              <a href="${privHref(u.url)}" target="_blank" rel="noreferrer" class="rounded-lg p-1.5 transition" style="color: var(--ink-muted)" title="Abrir" onmouseover="this.style.color='var(--blush-deep)';this.style.background='rgba(255,171,194,0.12)'" onmouseout="this.style.color='';this.style.background=''">
+                <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              </a>
+              <button class="copy-btn rounded-lg p-1.5 transition" style="color: var(--ink-muted)" data-copy="${u.url}" title="Copiar">
+                <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>`).join("");
+
+      const cmdBlock = l.command ? `
+        <div class="relative mt-5">
+          <span class="absolute -top-3 left-3 inline-flex rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider" style="border-color: var(--code-border); background: var(--code-bg); color: var(--ink-soft)">Comando</span>
+          <div class="code-block flex items-start justify-between gap-2 min-w-0 rounded-xl">
+            <code class="text-xs leading-relaxed break-all flex-1 min-w-0">${l.command}</code>
+            <button class="copy-btn shrink-0 rounded-lg p-1.5 transition" style="color: var(--ink-muted)" data-copy="${l.command}" title="Copiar">
+              <svg class="size-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </div>` : "";
+
+      return `
+      <div class="service-link group rounded-2xl border p-5 transition hover:-translate-y-0.5 min-w-0" style="border-color: var(--link-border); background: var(--link-bg)" data-type="${l.type}" data-search="${linkSearch}">
+        <div class="flex items-start justify-between gap-3">
+          <span class="text-base font-bold flex-1 min-w-0" style="color: var(--ink)">${l.name}</span>
+          <div class="shrink-0">
+            <span class="accent-light inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider ${acc.badgeL} border-current/20">${l.type}</span>
+            <span class="accent-dark inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-bold uppercase tracking-wider ${accD.badgeD} border-current/20">${l.type}</span>
+          </div>
+        </div>
+        <p class="mt-2 text-sm leading-6" style="color: var(--ink-soft)">${l.description}</p>
+        ${urlBlocks}
+        ${cmdBlock}
+      </div>`;
+    }).join("");
+
+    return `
+    <article class="project-card card overflow-hidden" data-search="${searchBase}" data-project="${p.name.toLowerCase()}">
+      <div class="flex flex-col gap-6 p-5 sm:p-6 lg:grid lg:grid-cols-[21rem_1fr]">
+        <div>
+          <div class="flex items-center gap-4">
+            <div class="accent-light inline-flex size-14 shrink-0 items-center justify-center rounded-2xl ${acc.badgeL}">
+              ${p.icon ? `<img src="${p.icon}" alt="" class="size-10 rounded-xl object-contain" loading="lazy" />` : `<span class="text-xl font-black">${p.name.slice(0,2).toUpperCase()}</span>`}
+            </div>
+            <div class="accent-dark inline-flex size-14 shrink-0 items-center justify-center rounded-2xl ${accD.badgeD}">
+              ${p.icon ? `<img src="${p.icon}" alt="" class="size-10 rounded-xl object-contain" loading="lazy" />` : `<span class="text-xl font-black">${p.name.slice(0,2).toUpperCase()}</span>`}
+            </div>
+            <div class="min-w-0">
+              <h2 class="text-2xl font-black tracking-tight truncate" style="color: var(--ink)">${p.name}</h2>
+            </div>
+          </div>
+          <p class="mt-4 text-sm leading-6" style="color: var(--ink-soft)">${p.description}</p>
+          <div class="mt-4 flex flex-wrap gap-2">
+            ${p.tags.map((t: string) => `
+              <span class="accent-light tag-pill border ${acc.chipL} border-current/10">#${t}</span>
+              <span class="accent-dark tag-pill border ${accD.chipD} border-current/10">#${t}</span>
+            `).join("")}
+          </div>
+        </div>
+        <div class="grid gap-4 grid-cols-1 sm:grid-cols-2 min-w-0">
+          ${linksHTML}
+        </div>
+      </div>
+    </article>`;
+  }
+
+  loginBtn?.addEventListener("click", async () => {
+    if (privateLoaded) return;
+
+    loginBtn.style.opacity = "0.5";
+    loginBtn.style.pointerEvents = "none";
+    privateLoader?.classList.remove("hidden");
+
+    try {
+      const res = await fetch("/api/private-projects");
+      if (!res.ok) throw new Error("not ok");
+      const data = await res.json();
+
+      if (!data || data.length === 0) {
+        privateLoader!.innerHTML = '<span class="text-xs" style="color: var(--ink-muted)">Sin URLs privadas</span>';
+        loginBtn.style.opacity = "1";
+        loginBtn.style.pointerEvents = "auto";
+        return;
+      }
+
+      for (const p of data) {
+        const html = renderPrivateProject(p);
+        const tmp = document.createElement("div");
+        tmp.innerHTML = html.trim();
+        const article = tmp.firstElementChild as HTMLElement;
+        if (article) {
+          projectsGrid?.appendChild(article);
+          projectsEls.push(article);
+        }
+      }
+
+      privateLoader?.classList.add("hidden");
+
+      // Update login button state
+      loginBtn.style.opacity = "1";
+      loginBtn.style.pointerEvents = "auto";
+      loginBtn.title = "Privados desbloqueados";
+      const svg = loginBtn.querySelector("svg");
+      if (svg) {
+        svg.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>';
+        svg.style.color = "var(--blush-deep)";
+      }
+
+      privateLoaded = true;
+      applyFilters();
+    } catch {
+      privateLoader!.innerHTML = '<span class="text-xs" style="color: var(--ink-muted)">No se pudo cargar</span>';
+      loginBtn.style.opacity = "1";
+      loginBtn.style.pointerEvents = "auto";
+    }
+  });
+</script>
+
+<style>
+  .service-link:hover {
+    border-color: rgba(221, 126, 154, 0.3) !important;
+    background: var(--link-hover-bg) !important;
+    box-shadow: 0 4px 24px -4px rgba(0,0,0,.12);
+  }
+
+  .copy-btn:hover {
+    color: var(--blush-deep) !important;
+    background: rgba(255, 171, 194, 0.12);
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+  .animate-spin {
+    animation: spin 0.8s linear infinite;
+  }
+</style>

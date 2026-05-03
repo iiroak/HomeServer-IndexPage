@@ -1,0 +1,164 @@
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════
+   Theme variables — light (default)
+   ══════════════════════════════════════════ */
+:root {
+  /* Accents (same in both themes) */
+  --blush: #ffabc2;
+  --blush-deep: #dd7e9a;
+  --cream: #ffe6c1;
+  --peach: #f4a988;
+  --rose: #d2303c;
+  --sky: #d7deec;
+
+  /* Surfaces & text — light */
+  --ink: #3d2626;
+  --ink-soft: #6b5a5a;
+  --ink-muted: #9e8e8e;
+  --surface: #fdf7f3;
+  --card-bg: #ffffff;
+  --card-raised: #fdf7f3;
+  --border: rgba(215, 222, 236, 0.7);
+  --input-bg: rgba(253, 247, 243, 0.8);
+  --code-bg: #fff5f7;
+  --code-text: #4a3030;
+  --code-border: rgba(255, 171, 194, 0.18);
+  --link-bg: rgba(253, 247, 243, 0.7);
+  --link-border: rgba(215, 222, 236, 0.6);
+  --link-hover-bg: #ffffff;
+  --card-shadow: 0 1px 3px rgba(215,222,236,.5), 0 12px 40px -18px rgba(221,126,154,.2);
+  --pill-bg: rgba(215, 222, 236, 0.3);
+  --pill-text: #3d2626;
+
+  /* Blobs */
+  --blob-pink: rgba(255, 171, 194, 0.25);
+  --blob-lav: rgba(215, 222, 236, 0.30);
+  --blob-cream: rgba(255, 230, 193, 0.30);
+
+  color-scheme: light;
+}
+
+/* ══════════════════════════════════════════
+   Dark theme overrides
+   ══════════════════════════════════════════ */
+[data-theme="dark"] {
+  --ink: #ede0e4;
+  --ink-soft: #b8a5ad;
+  --ink-muted: #7a6a72;
+  --surface: #110d10;
+  --card-bg: #1f171b;
+  --card-raised: #261d22;
+  --border: #33262d;
+  --input-bg: #1c1318;
+  --code-bg: #141014;
+  --code-text: #d6c8ce;
+  --code-border: rgba(255, 171, 194, 0.14);
+  --link-bg: #1f171b;
+  --link-border: #33262d;
+  --link-hover-bg: #241b20;
+  --card-shadow: 0 1px 2px rgba(0,0,0,.4), 0 12px 40px -18px rgba(0,0,0,.55);
+  --pill-bg: rgba(255, 255, 255, 0.06);
+  --pill-text: #ede0e4;
+
+  --blob-pink: rgba(255, 171, 194, 0.10);
+  --blob-lav: rgba(215, 222, 236, 0.08);
+  --blob-cream: rgba(255, 230, 193, 0.10);
+
+  color-scheme: dark;
+}
+
+/* ══════════════════════════════════════════
+   Tailwind theme tokens
+   ══════════════════════════════════════════ */
+@theme {
+  --font-sans: "Inter", "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
+}
+
+/* ══════════════════════════════════════════
+   Base styles
+   ══════════════════════════════════════════ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+  }
+
+  body {
+    @apply min-h-screen font-sans antialiased;
+    background:
+      radial-gradient(circle at 10% 5%, var(--blob-pink), transparent 36rem),
+      radial-gradient(circle at 90% 15%, var(--blob-lav), transparent 32rem),
+      radial-gradient(circle at 50% 90%, var(--blob-cream), transparent 38rem),
+      var(--surface);
+    color: var(--ink);
+    overflow-x: hidden;
+  }
+
+  ::selection {
+    background: rgba(255, 171, 194, 0.30);
+    color: var(--ink);
+  }
+
+  *:focus-visible {
+    outline: 2px solid var(--blush-deep);
+    outline-offset: 2px;
+  }
+
+  select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239e8e8e' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    padding-right: 2.4rem;
+  }
+}
+
+/* ══════════════════════════════════════════
+   Utility classes
+   ══════════════════════════════════════════ */
+@utility card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: 1.5rem;
+  box-shadow: var(--card-shadow);
+}
+
+@utility tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+@utility code-block {
+  @apply font-mono text-sm leading-relaxed rounded-xl px-4 py-3;
+  background: var(--code-bg);
+  border: 1px solid var(--code-border);
+  color: var(--code-text);
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  min-width: 0;
+}
+
+/* ══════════════════════════════════════════
+   Accent visibility helpers
+   ══════════════════════════════════════════ */
+.accent-light { display: inline-flex; }
+.accent-dark  { display: none; }
+
+[data-theme="dark"] .accent-light { display: none; }
+[data-theme="dark"] .accent-dark  { display: inline-flex; }
+
+/* ══════════════════════════════════════════
+   Theme toggle icon visibility
+   ══════════════════════════════════════════ */
+.theme-icon-light { display: none; }
+.theme-icon-dark  { display: block; }
+
+[data-theme="dark"] .theme-icon-light { display: block; }
+[data-theme="dark"] .theme-icon-dark  { display: none; }

@@ -1,0 +1,20 @@
+Necesito una pagina implementada con pnpm y astro
+La idea de esta pagina es simple es un proyecto de index de paginas de mi proyectos
+lo que hara es ser una pagina hecha en astro y poder ser levantada con un dockerfile
+
+si bien esto estara en un git pensaba que el index simplemente sean unos json o un sqlite
+ya que simplemente enviare un PR y ya
+
+el diseño debe ser moderno, estilo oscuro etc. debe ser bueno en si 
+busco que tenga estos puntos:
+- poder buscar las paginas
+- poder separarlas por proyecto digamos, tengo proyecto RedTransporte, ahi tengo 2 URL que es a la api y al web del proyecto
+- tener sopoorte para icono sea imagen/svg para que se ilustre mejor
+- una forma de poder visualizar esto y recorrer de manera "util" y que se vea bien
+
+mi proposito es despues de un tiempo: oh cual era la url de esto que tenia levantado entrar aca y encontrarla
+puedes tomar inspiracion del diseño del proyecto que tengo en el escritorio que es "HomeServer-PortScannerWeb"
+no digo que lo copies pero peudes tomarlo de referencia para hacer esto
+me gustaria que el disñeo juege con gradientes de colores
+
+respecto al almacenamiento de los url de nuevo, prefiero que quede en github tampoco seran millones con subirlo al git me sobran solo es indicar urls

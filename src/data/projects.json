@@ -1,0 +1,70 @@
+[
+  {
+    "name": "RedTransporte",
+    "description": "Servicios principales del proyecto RedTransporte.",
+    "icon": "/icons/redtransporte.svg",
+    "accent": "pink",
+    "tags": ["transporte", "produccion"],
+    "links": [
+      {
+        "name": "Web App",
+        "url": "https://redtransporte.example.com",
+        "type": "web",
+        "description": "Frontend principal del proyecto."
+      },
+      {
+        "name": "API",
+        "url": "https://api.redtransporte.example.com",
+        "type": "api",
+        "description": "Backend HTTP usado por la aplicacion web."
+      }
+    ]
+  },
+  {
+    "name": "HomeServer",
+    "description": "Utilidades internas para administrar servicios del servidor.",
+    "icon": "/icons/homeserver.svg",
+    "accent": "lavender",
+    "tags": ["infra", "docker", "local"],
+    "links": [
+      {
+        "name": "Proxmox VE",
+        "urls": [
+          { "label": "Publica", "url": "https://proxmox.example.com" },
+          { "label": "Interna", "url": "192.168.1.200:8006" },
+          { "label": "Local", "url": "localhost:8006" }
+        ],
+        "type": "admin",
+        "description": "Panel de virtualizacion Proxmox."
+      },
+      {
+        "name": "Port Scanner",
+        "url": "https://ports.example.com",
+        "type": "tool",
+        "description": "Monitor de puertos TCP activos."
+      }
+    ]
+  },
+  {
+    "name": "Acceso Remoto",
+    "description": "Tuneles RDP y SSH para acceder a servidores.",
+    "icon": "/icons/remote.svg",
+    "accent": "crimson",
+    "tags": ["infra", "acceso", "tunnel"],
+    "links": [
+      {
+        "name": "RDP Principal",
+        "url": "rdp://server.example.com",
+        "command": "cloudflared access rdp --hostname rdp.example.com --url localhost:3389",
+        "type": "rdp",
+        "description": "Escritorio remoto via Cloudflare Tunnel."
+      },
+      {
+        "name": "SSH Dev",
+        "command": "cloudflared access ssh --hostname ssh.example.com",
+        "type": "ssh",
+        "description": "Acceso SSH al servidor de desarrollo."
+      }
+    ]
+  }
+]

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Acceso Remoto">
+  <defs>
+    <linearGradient id="g" x1="8" x2="56" y1="10" y2="54" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#ffabc2" />
+      <stop offset="1" stop-color="#d2303c" />
+    </linearGradient>
+  </defs>
+  <rect width="64" height="64" rx="18" fill="#fdf2f2" />
+  <rect x="14" y="14" width="36" height="36" rx="6" fill="url(#g)" opacity="0.92" />
+  <rect x="20" y="21" width="24" height="22" rx="3" fill="#fff" />
+  <circle cx="32" cy="34" r="4" fill="url(#g)" />
+  <path stroke="#fff" stroke-linecap="round" stroke-width="2.5" d="M32 20v3M32 41v3M25 27h-3M42 27h3M25 41h-3M42 41h3" />
+  <circle cx="18" cy="18" r="2.5" fill="#ffabc2" />
+  <circle cx="18" cy="46" r="2.5" fill="#ffabc2" />
+  <circle cx="46" cy="18" r="2.5" fill="#ffabc2" />
+  <circle cx="46" cy="46" r="2.5" fill="#ffabc2" />
+</svg>

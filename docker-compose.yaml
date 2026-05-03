@@ -1,0 +1,16 @@
+services:
+  index-public:
+    build: .
+    container_name: index-public
+    ports:
+      - "4321:4321"
+    environment:
+      PRIVATE_INDEX_URL: http://index-private:3000
+    restart: unless-stopped
+
+  index-private:
+    build: ../HomeServer-IndexPrivate
+    container_name: index-private
+    expose:
+      - "3000"
+    restart: unless-stopped
