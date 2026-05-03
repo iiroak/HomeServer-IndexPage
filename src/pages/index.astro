@@ -412,16 +412,21 @@ function hrefOrNone(u: string) {
     emptyState?.classList.toggle("hidden", visibleLinks > 0);
   }
 
-  function updateStats(privateProjects: any[]) {
+  function updateStats() {
     const statEl = document.querySelector(".card.p-3.sm\\:p-6 .grid.grid-cols-3");
     if (!statEl) return;
-    const totalProjects = typed.length + privateProjects.length;
-    const totalLinks = Array.from(document.querySelectorAll<HTMLElement>(".service-link")).filter(l => !l.classList.contains("hidden")).length;
+    const allProjects = Array.from(document.querySelectorAll<HTMLElement>(".project-card"));
+    const allLinks = Array.from(document.querySelectorAll<HTMLElement>(".service-link"));
+    const allTypesSet = new Set(allLinks.map(l => l.dataset.type));
+    const projectCount = allProjects.filter(p => !p.classList.contains("hidden")).length;
+    const linkCount = allLinks.filter(l => !l.classList.contains("hidden")).length;
+    const typeCount = allTypesSet.size;
 
     const stats = statEl.querySelectorAll("p.text-2xl");
-    if (stats[0]) stats[0].textContent = String(totalProjects);
-    if (stats[1]) stats[1].textContent = String(totalLinks);
-    if (resultCount) resultCount.textContent = String(totalLinks);
+    if (stats[0]) stats[0].textContent = String(projectCount);
+    if (stats[1]) stats[1].textContent = String(linkCount);
+    if (stats[2]) stats[2].textContent = String(typeCount);
+    if (resultCount) resultCount.textContent = String(linkCount);
   }
 
   searchInput?.addEventListener("input", applyFilters);
@@ -553,77 +558,72 @@ function hrefOrNone(u: string) {
     loginBtn.style.pointerEvents = "none";
     privateLoader?.classList.remove("hidden");
 
-    try {
-      const res = await fetch("/api/private-projects", {
-        credentials: "same-origin",
-      });
-      if (!res.ok) {
-        let message = `HTTP ${res.status}`;
-        try {
-          const errorData = await res.json();
-          message = errorData.message || errorData.error || message;
-        } catch {
-          // Cloudflare 502 pages are HTML, not JSON.
+    const tryUrls = [
+      "http://10.10.10.245:50834/projects",
+      "/api/private-projects",
+    ];
+
+    let lastError = "No se pudo cargar";
+    for (const url of tryUrls) {
+      try {
+        const res = await fetch(url, { credentials: "same-origin" });
+        if (!res.ok) continue;
+        const data = await res.json();
+        if (!data || data.length === 0) {
+          privateLoader!.innerHTML = '<span class="text-xs" style="color: var(--ink-muted)">Sin URLs privadas</span>';
+          loginBtn.style.opacity = "1";
+          loginBtn.style.pointerEvents = "auto";
+          return;
         }
-        throw new Error(message);
-      }
 
-      const data = await res.json();
+        for (const p of data) {
+          const html = renderPrivateProject(p);
+          const tmp = document.createElement("div");
+          tmp.innerHTML = html.trim();
+          const article = tmp.firstElementChild as HTMLElement;
+          if (article) {
+            const projectKey = article.dataset.project;
+            const existing = projectsEls.find((project) => project.dataset.project === projectKey);
 
-      if (!data || data.length === 0) {
-        privateLoader!.innerHTML = '<span class="text-xs" style="color: var(--ink-muted)">Sin URLs privadas</span>';
-        loginBtn.style.opacity = "1";
-        loginBtn.style.pointerEvents = "auto";
-        return;
-      }
+            if (existing) {
+              const existingLinksGrid = existing.querySelector<HTMLElement>(".grid.gap-4.grid-cols-1");
+              const privateLinks = Array.from(article.querySelectorAll<HTMLElement>(".service-link"));
 
-      for (const p of data) {
-        const html = renderPrivateProject(p);
-        const tmp = document.createElement("div");
-        tmp.innerHTML = html.trim();
-        const article = tmp.firstElementChild as HTMLElement;
-        if (article) {
-          const projectKey = article.dataset.project;
-          const existing = projectsEls.find((project) => project.dataset.project === projectKey);
+              for (const link of privateLinks) {
+                existingLinksGrid?.appendChild(link);
+              }
 
-          if (existing) {
-            const existingLinksGrid = existing.querySelector<HTMLElement>(".grid.gap-4.grid-cols-1");
-            const privateLinks = Array.from(article.querySelectorAll<HTMLElement>(".service-link"));
-
-            for (const link of privateLinks) {
-              existingLinksGrid?.appendChild(link);
+              const mergedSearch = [existing.dataset.search || "", article.dataset.search || ""].join(" ").trim();
+              existing.dataset.search = mergedSearch;
+            } else {
+              projectsGrid?.appendChild(article);
+              projectsEls.push(article);
             }
-
-            const mergedSearch = [existing.dataset.search || "", article.dataset.search || ""].join(" ").trim();
-            existing.dataset.search = mergedSearch;
-          } else {
-            projectsGrid?.appendChild(article);
-            projectsEls.push(article);
           }
         }
+
+        privateLoader?.classList.add("hidden");
+        loginBtn.style.opacity = "1";
+        loginBtn.style.pointerEvents = "auto";
+        loginBtn.title = "Privados desbloqueados";
+        const svg = loginBtn.querySelector("svg");
+        if (svg) {
+          svg.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>';
+          svg.style.color = "var(--blush-deep)";
+        }
+
+        privateLoaded = true;
+        applyFilters();
+        updateStats();
+        return;
+      } catch (error) {
+        lastError = error instanceof Error ? error.message : "No se pudo cargar";
       }
-
-      privateLoader?.classList.add("hidden");
-
-      // Update login button state
-      loginBtn.style.opacity = "1";
-      loginBtn.style.pointerEvents = "auto";
-      loginBtn.title = "Privados desbloqueados";
-      const svg = loginBtn.querySelector("svg");
-      if (svg) {
-        svg.innerHTML = '<rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/>';
-        svg.style.color = "var(--blush-deep)";
-      }
-
-      privateLoaded = true;
-      applyFilters();
-      updateStats(data);
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "No se pudo cargar";
-      privateLoader!.innerHTML = `<span class="text-xs" style="color: var(--ink-muted)">No se pudo cargar: ${message}</span>`;
-      loginBtn.style.opacity = "1";
-      loginBtn.style.pointerEvents = "auto";
     }
+
+    privateLoader!.innerHTML = `<span class="text-xs" style="color: var(--ink-muted)">${lastError}</span>`;
+    loginBtn.style.opacity = "1";
+    loginBtn.style.pointerEvents = "auto";
   }
 
   loginBtn?.addEventListener("click", () => {
