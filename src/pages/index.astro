@@ -412,6 +412,18 @@ function hrefOrNone(u: string) {
     emptyState?.classList.toggle("hidden", visibleLinks > 0);
   }
 
+  function updateStats(privateProjects: any[]) {
+    const statEl = document.querySelector(".card.p-3.sm\\:p-6 .grid.grid-cols-3");
+    if (!statEl) return;
+    const totalProjects = typed.length + privateProjects.length;
+    const totalLinks = Array.from(document.querySelectorAll<HTMLElement>(".service-link")).filter(l => !l.classList.contains("hidden")).length;
+
+    const stats = statEl.querySelectorAll("p.text-2xl");
+    if (stats[0]) stats[0].textContent = String(totalProjects);
+    if (stats[1]) stats[1].textContent = String(totalLinks);
+    if (resultCount) resultCount.textContent = String(totalLinks);
+  }
+
   searchInput?.addEventListener("input", applyFilters);
   typeFilter?.addEventListener("change", applyFilters);
   projectFilter?.addEventListener("change", applyFilters);
@@ -435,7 +447,7 @@ function hrefOrNone(u: string) {
   const loginBtn = document.getElementById("loginBtn");
   const privateLoader = document.getElementById("privateLoader");
   const projectsGrid = document.getElementById("projectsGrid");
-  const projectsStat = document.querySelector("#projectsGrid")?.previousElementSibling?.querySelector("span") as HTMLElement | null;
+  const projectsStatEl = document.querySelector("#projectsGrid")?.previousElementSibling?.querySelector("span") as HTMLElement | null;
 
   let privateLoaded = false;
 
@@ -605,6 +617,7 @@ function hrefOrNone(u: string) {
 
       privateLoaded = true;
       applyFilters();
+      updateStats(data);
     } catch (error) {
       const message = error instanceof Error ? error.message : "No se pudo cargar";
       privateLoader!.innerHTML = `<span class="text-xs" style="color: var(--ink-muted)">No se pudo cargar: ${message}</span>`;
@@ -618,10 +631,7 @@ function hrefOrNone(u: string) {
     window.location.href = "/api/login";
   });
 
-  if (new URLSearchParams(window.location.search).get("unlock") === "1") {
-    window.history.replaceState({}, "", window.location.pathname);
-    loadPrivateProjects();
-  }
+  loadPrivateProjects();
 </script>
 
 <style>

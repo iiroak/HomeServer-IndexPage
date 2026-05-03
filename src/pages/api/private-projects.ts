@@ -1,11 +1,11 @@
 import type { APIRoute } from "astro";
 
-const PRIVATE_URLS = (process.env.PRIVATE_INDEX_URLS || process.env.PRIVATE_INDEX_URL || "http://index-private:3000")
+const PRIVATE_URLS = (process.env.PRIVATE_INDEX_URLS || process.env.PRIVATE_INDEX_URL || "http://10.10.10.245:50834,http://index-private:3000")
   .split(",")
   .map((url) => url.trim().replace(/\/$/, ""))
   .filter(Boolean);
 
-const REQUIRE_CF_ACCESS = process.env.REQUIRE_CF_ACCESS === "true";
+const REQUIRE_CF_ACCESS = (process.env.REQUIRE_CF_ACCESS || "false") === "true";
 
 function hasCloudflareAccessHeaders(request: Request) {
   return Boolean(
