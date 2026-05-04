@@ -470,6 +470,7 @@ function hrefOrNone(u: string) {
   const projectsStatEl = document.querySelector("#projectsGrid")?.previousElementSibling?.querySelector("span") as HTMLElement | null;
 
   let privateLoaded = false;
+  let privateLoadPromise: Promise<void> | null = null;
 
   const privAccentDefs: Record<string, { badgeL: string; badgeD: string; chipL: string; chipD: string }> = {
     pink:     { badgeL: "bg-[#ffabc2]/20 text-[#b05a6e]", badgeD: "bg-[#ffabc2]/15 text-[#ffbccc]", chipL: "bg-[#ffabc2]/12 text-[#9e4a5e]", chipD: "bg-[#ffabc2]/10 text-[#ffbccc]" },
@@ -569,6 +570,12 @@ function hrefOrNone(u: string) {
 
   async function loadPrivateProjects(silent = true) {
     if (privateLoaded) return;
+    if (privateLoadPromise) {
+      await privateLoadPromise;
+      return;
+    }
+
+    privateLoadPromise = (async () => {
     if (!silent) {
       loginBtn.style.opacity = "0.5";
       loginBtn.style.pointerEvents = "none";
@@ -654,6 +661,13 @@ function hrefOrNone(u: string) {
       privateLoader!.innerHTML = `<span class="text-xs" style="color: var(--ink-muted)">${lastError}</span>`;
       loginBtn.style.opacity = "1";
       loginBtn.style.pointerEvents = "auto";
+    }
+    })();
+
+    try {
+      await privateLoadPromise;
+    } finally {
+      privateLoadPromise = null;
     }
   }
 
