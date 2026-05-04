@@ -8,19 +8,31 @@
     "links": [
       {
         "name": "Web",
-        "url": "https://boty.iroak.cl",
+        "url": "https://boty.cl",
         "type": "web",
         "description": "Pagina principal de Boty."
       },
       {
         "name": "Empresas",
-        "url": "https://boty.iroak.cl/empresa",
+        "url": "https://empresa.boty.cl",
         "type": "web",
         "description": "Portal de gestion de empresas."
       },
       {
+        "name": "Admin",
+        "url": "https://admin.boty.cl",
+        "type": "admin",
+        "description": "Panel de administracion."
+      },
+      {
+        "name": "API",
+        "url": "https://api.boty.cl",
+        "type": "api",
+        "description": "API del sistema."
+      },
+      {
         "name": "Documentacion",
-        "url": "https://boty.iroak.cl/docs",
+        "url": "https://docs.boty.cl",
         "type": "docs",
         "description": "Documentacion de la API y guias de uso."
       }
