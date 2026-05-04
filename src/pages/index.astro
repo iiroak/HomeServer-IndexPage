@@ -567,14 +567,15 @@ function hrefOrNone(u: string) {
     </article>`;
   }
 
-  async function loadPrivateProjects() {
+  async function loadPrivateProjects(silent = true) {
     if (privateLoaded) return;
-    loginBtn.style.opacity = "0.5";
-    loginBtn.style.pointerEvents = "none";
-    privateLoader?.classList.remove("hidden");
+    if (!silent) {
+      loginBtn.style.opacity = "0.5";
+      loginBtn.style.pointerEvents = "none";
+      privateLoader?.classList.remove("hidden");
+    }
 
     const tryUrls = [
-      "http://10.10.10.245:50834/projects",
       "/api/private-projects",
     ];
 
@@ -582,12 +583,17 @@ function hrefOrNone(u: string) {
     for (const url of tryUrls) {
       try {
         const res = await fetch(url, { credentials: "same-origin" });
-        if (!res.ok) continue;
+        if (!res.ok) {
+          lastError = `HTTP ${res.status}`;
+          continue;
+        }
         const data = await res.json();
         if (!data || data.length === 0) {
-          privateLoader!.innerHTML = '<span class="text-xs" style="color: var(--ink-muted)">Sin URLs privadas</span>';
-          loginBtn.style.opacity = "1";
-          loginBtn.style.pointerEvents = "auto";
+          if (!silent) {
+            privateLoader!.innerHTML = '<span class="text-xs" style="color: var(--ink-muted)">Sin URLs privadas</span>';
+            loginBtn.style.opacity = "1";
+            loginBtn.style.pointerEvents = "auto";
+          }
           return;
         }
 
@@ -636,16 +642,23 @@ function hrefOrNone(u: string) {
       }
     }
 
-    privateLoader!.innerHTML = `<span class="text-xs" style="color: var(--ink-muted)">${lastError}</span>`;
-    loginBtn.style.opacity = "1";
-    loginBtn.style.pointerEvents = "auto";
+    if (!silent) {
+      privateLoader!.innerHTML = `<span class="text-xs" style="color: var(--ink-muted)">${lastError}</span>`;
+      loginBtn.style.opacity = "1";
+      loginBtn.style.pointerEvents = "auto";
+    }
   }
 
   loginBtn?.addEventListener("click", () => {
     if (privateLoaded) return;
-    privateLoader?.classList.remove("hidden");
-    loadPrivateProjects();
+    loadPrivateProjects(false);
   });
+
+  loadPrivateProjects(true);
+
+  if (window.location.search.includes("unlock")) {
+    loadPrivateProjects(false);
+  }
 </script>
 
 <style>

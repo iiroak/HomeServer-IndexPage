@@ -14,15 +14,40 @@ function hasCloudflareAccessHeaders(request: Request) {
   );
 }
 
+export const OPTIONS: APIRoute = ({ request }) => {
+  const origin = request.headers.get("origin") || "*";
+  return new Response(null, {
+    status: 204,
+    headers: {
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Credentials": "true",
+      "Access-Control-Allow-Methods": "GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Max-Age": "86400",
+    },
+  });
+};
+
 export const GET: APIRoute = async ({ request }) => {
+  const origin = request.headers.get("origin") || "*";
+
   if (REQUIRE_CF_ACCESS && !hasCloudflareAccessHeaders(request)) {
     return new Response(JSON.stringify({ error: "cloudflare_access_required" }), {
       status: 401,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Credentials": "true",
+      },
     });
   }
 
   const errors: Array<{ privateUrl: string; message: string; status?: number }> = [];
+
+  const corsHeaders = {
+    "Access-Control-Allow-Origin": origin,
+    "Access-Control-Allow-Credentials": "true",
+  };
 
   for (const privateUrl of PRIVATE_URLS) {
     try {
@@ -37,7 +62,10 @@ export const GET: APIRoute = async ({ request }) => {
       const data = JSON.parse(raw);
       return new Response(JSON.stringify(data), {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+        },
       });
     } catch (error) {
       errors.push({ privateUrl, message: error instanceof Error ? error.message : String(error) });
@@ -47,6 +75,9 @@ export const GET: APIRoute = async ({ request }) => {
   console.error("[private-projects] all upstreams failed", errors);
   return new Response(JSON.stringify({ error: "private_upstream_unreachable", attempts: errors }), {
     status: 502,
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...corsHeaders,
+    },
   });
 };

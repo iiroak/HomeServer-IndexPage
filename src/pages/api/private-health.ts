@@ -15,10 +15,16 @@ function hasCloudflareAccessHeaders(request: Request) {
 }
 
 export const GET: APIRoute = async ({ request }) => {
+  const origin = request.headers.get("origin") || "*";
+
   if (REQUIRE_CF_ACCESS && !hasCloudflareAccessHeaders(request)) {
     return new Response(JSON.stringify({ error: "cloudflare_access_required" }), {
       status: 401,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Credentials": "true",
+      },
     });
   }
 
@@ -47,7 +53,11 @@ export const GET: APIRoute = async ({ request }) => {
           }),
           {
             status: 200,
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "Access-Control-Allow-Origin": origin,
+              "Access-Control-Allow-Credentials": "true",
+            },
           },
         );
       }
@@ -68,7 +78,11 @@ export const GET: APIRoute = async ({ request }) => {
     }),
     {
       status: 502,
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Credentials": "true",
+      },
     },
   );
 };
