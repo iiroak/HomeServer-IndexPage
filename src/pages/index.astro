@@ -582,7 +582,15 @@ function hrefOrNone(u: string) {
     let lastError = "No se pudo cargar";
     for (const url of tryUrls) {
       try {
-        const res = await fetch(url, { credentials: "same-origin" });
+        const res = await fetch(url, {
+          credentials: "same-origin",
+          redirect: silent ? "manual" : "follow",
+        });
+
+        if (silent && res.type === "opaqueredirect") {
+          return;
+        }
+
         if (!res.ok) {
           lastError = `HTTP ${res.status}`;
           continue;
@@ -651,13 +659,13 @@ function hrefOrNone(u: string) {
 
   loginBtn?.addEventListener("click", () => {
     if (privateLoaded) return;
-    loadPrivateProjects(false);
+    window.location.href = "/api/login";
   });
 
   loadPrivateProjects(true);
 
   if (window.location.search.includes("unlock")) {
-    loadPrivateProjects(false);
+    loadPrivateProjects(true);
   }
 </script>
 
