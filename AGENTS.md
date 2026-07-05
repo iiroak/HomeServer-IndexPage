@@ -209,6 +209,103 @@ Light/dark theme via `data-theme` attribute on `<html>`. User preference stored 
 
 Theme tokens in `styles/global.css` use CSS custom properties (`--ink`, `--ink-soft`, `--card-bg`, etc.).
 
+## Category Map
+
+Projects are grouped by category. The `name` field is the category name and the merge key with
+private projects.
+
+| Category | accent | Public links | Private links (merge) |
+|----------|--------|-------------|----------------------|
+| **Cliente** | pink | Boty Web/Empresas/Docs, CheckerMicrosoft | Boty API/Admin, CheckerMS internal |
+| **Media** | peach | Navidrome, Jellyfin | Navidrome/Jellyfin internal, Suwayomi, Grammy |
+| **Transporte** | lavender | RedTransporte Web/API | RedTransporte API internal |
+| **Desarrollo** | crimson | Amapola, AI Prices, damaparts | Amapola internal/webhook, Port Scanner, AI Prices internal |
+| **Infra** | cream | *(no public)* | Proxmox, OPNsense, Coolify, NPM, MariaDB |
+| **Acceso Remoto** | crimson | *(no public)* | RDP/SSH/SFTP commands, VPS-CL streams |
+
+## How to Add a Service
+
+### Step 1: Determine public vs private
+
+- **PUBLIC** (URL is already publicly resolvable via DNS, no auth to view) → edit `src/data/projects.json`
+- **PRIVATE** (internal IP, admin dashboard, SSH/RDP/SFTP command, behind Cloudflare Access) → edit
+  `../HomeServer-IndexPrivate/data/private-projects.json`
+
+### Step 2: Pick the category
+
+Use the category map above. If a service doesn't fit any existing category, create a new one.
+
+### Step 3: Edit the JSON
+
+```json
+{
+  "name": "CategoryName",
+  "description": "...",
+  "accent": "color",
+  "tags": ["tag1"],
+  "links": [
+    {
+      "name": "Service Name",
+      "url": "https://example.com",
+      "type": "web",
+      "description": "What it does."
+    }
+  ]
+}
+```
+
+For services with both public and internal URLs, use `urls` (multi-URL) in the **private** JSON:
+```json
+{
+  "name": "Service",
+  "urls": [
+    { "label": "Publica", "url": "https://public.example.com" },
+    { "label": "Interna", "url": "http://10.10.10.x:port" }
+  ],
+  "type": "web",
+  "description": "...",
+  "command": "optional-copiable-command"
+}
+```
+
+### Step 4: Icons (optional)
+
+Place SVG/PNG in `public/icons/` and reference with `"icon": "/icons/name.svg"`.
+If no icon, omit the field — the UI shows the first 2 letters of the name.
+
+### Step 5: Commit and push
+
+Both repos deploy via Coolify. Push triggers redeploy if auto-deploy is configured.
+
+## Link Type Reference
+
+| Type | Use for | Example |
+|------|---------|---------|
+| `web` | Web UIs, apps | Navidrome, Jellyfin, Amapola |
+| `api` | HTTP APIs | Boty API, CheckerMS, RedTransporte |
+| `docs` | Documentation | Boty Docs |
+| `admin` | Admin/management panels | Proxmox, OPNsense, Coolify, NPM |
+| `db` | Database connections | MariaDB |
+| `ssh` | SSH access commands | `ssh -p 20002 user@vps` |
+| `sftp` | SFTP access + web UIs | SFTPGo |
+| `rdp` | RDP access commands | `mstsc /v:host:port` |
+| `tunnel` | Tunnel/VPN commands | cloudflared, WireGuard |
+| `tool` | Utility tools | Port Scanner |
+
+## Infra Inventory Source
+
+The authoritative source for what exists in the homelab is the `Serverhome-Proxmox` repo
+(`/home/kaori/projects/Proxmox/`). Key docs:
+
+- `AGENTS.md` — overview and navigation index
+- `PROXMOX.md` — host inventory, all VMs/CTs
+- `VMs/*.md` — per-machine details (IPs, ports, URLs)
+- `CLOUDFLARE.md` — tunnels, DNS records, Access policies
+- `VPS-CL.md` — NPM streams (TCP/UDP forwards)
+- `VPS-BOTY.md` — BOTY stack on VPS
+
+When adding a service, check these docs for the correct URLs, IPs, ports, and auth requirements.
+
 ## Gotchas
 
 - No test framework configured — manual verification only

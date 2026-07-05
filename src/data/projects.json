@@ -1,43 +1,99 @@
 [
   {
-    "name": "Boty",
-    "description": "Sistema de licencias de software.",
-    "icon": "/icons/boty.svg",
+    "name": "Cliente",
+    "description": "Proyectos de software para clientes.",
     "accent": "pink",
-    "tags": ["licencias", "software"],
+    "tags": ["cliente", "licencias", "produccion"],
     "links": [
       {
-        "name": "Web",
+        "name": "Boty Web",
         "url": "https://boty.cl",
         "type": "web",
         "description": "Pagina principal de Boty."
       },
       {
-        "name": "Empresas",
+        "name": "Boty Empresas",
         "url": "https://empresa.boty.cl",
         "type": "web",
         "description": "Portal de gestion de empresas."
       },
       {
-        "name": "Documentacion",
+        "name": "Boty Docs",
         "url": "https://docs.boty.cl",
         "type": "docs",
         "description": "Documentacion de la API y guias de uso."
+      },
+      {
+        "name": "CheckerMicrosoft",
+        "url": "https://checkerms.boty.cl",
+        "type": "api",
+        "description": "API de verificacion de licencias Microsoft (.NET Kestrel)."
       }
     ]
   },
   {
-    "name": "RedTransporte",
-    "description": "Servicios del proyecto RedTransporte.",
-    "icon": "/icons/redtransporte.svg",
-    "accent": "lavender",
-    "tags": ["transporte", "produccion"],
+    "name": "Media",
+    "description": "Servidores de streaming de musica y video.",
+    "accent": "peach",
+    "tags": ["media", "streaming", "musica", "video"],
     "links": [
       {
-        "name": "Web App",
+        "name": "Navidrome",
+        "url": "https://navidrome.iroak.dev",
+        "type": "web",
+        "description": "Servidor de musica autoalojado."
+      },
+      {
+        "name": "Jellyfin",
+        "url": "https://jellyfin.iroak.dev",
+        "type": "web",
+        "description": "Servidor de peliculas y series."
+      }
+    ]
+  },
+  {
+    "name": "Transporte",
+    "description": "Servicios del proyecto RedTransporte.",
+    "accent": "lavender",
+    "tags": ["transporte", "transantiago"],
+    "links": [
+      {
+        "name": "RedTransporte Web",
         "url": "https://red.iroak.dev",
         "type": "web",
         "description": "Frontend principal del proyecto."
+      },
+      {
+        "name": "RedTransporte API",
+        "url": "https://api-red.iroak.dev",
+        "type": "api",
+        "description": "Backend HTTP de RedTransporte."
+      }
+    ]
+  },
+  {
+    "name": "Desarrollo",
+    "description": "Proyectos de desarrollo y herramientas internas.",
+    "accent": "crimson",
+    "tags": ["desarrollo", "herramientas"],
+    "links": [
+      {
+        "name": "Amapola",
+        "url": "https://amapola.iroak.dev",
+        "type": "web",
+        "description": "Plataforma de gestion (Next.js). Wake-on-demand via amapola-gate."
+      },
+      {
+        "name": "AI Prices",
+        "url": "https://ai-prices.iroak.dev",
+        "type": "web",
+        "description": "Dashboard de precios de modelos de IA."
+      },
+      {
+        "name": "damaparts",
+        "url": "https://damaparts.iroak.dev",
+        "type": "web",
+        "description": "Catalogo de repuestos (GitHub Pages). Redireccionar desde damaparts.iroak.cl."
       }
     ]
   }
