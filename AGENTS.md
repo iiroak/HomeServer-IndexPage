@@ -113,7 +113,7 @@ Health check for the private upstream service.
 
 ```typescript
 interface Project {
-  name: string;           // Project name (unique key for merge with private)
+  name: string;           // Category name (unique key for merge with private)
   description: string;    // Short description
   icon?: string;          // Path in public/icons/ (SVG, PNG, etc.)
   accent?: string;        // pink | crimson | lavender | cream | peach
@@ -123,25 +123,36 @@ interface Project {
 }
 
 interface Link {
-  name: string;           // Service name (e.g., "Web", "API")
+  name: string;           // Service name (e.g., "Proxmox", "Navidrome")
   url?: string;           // Single URL (clickable + copiable)
   urls?: LinkUrl[];       // Multiple URLs with labels (mutually exclusive with url)
-  command?: string;       // Copiable command (e.g., CF tunnel command)
-  type: string;           // Type badge (e.g., "web", "api", "docs")
+  command?: string;       // Legacy: single copiable command
+  commands?: Command[];   // New: array of labeled commands (preferred)
+  type: string;           // Type badge (e.g., "web", "api", "ssh", "rdp", "db")
   description: string;    // Service description
+  visibility?: string;    // "public" | "access" | "internal" | "command"
+  host?: string;          // Host/VM/CT identifier (e.g., "pve", "ct102", "vm303")
 }
 
 interface LinkUrl {
-  label: string;          // Label (e.g., "Publica", "Interna", "Local")
+  label: string;          // Label (e.g., "Publica", "Interna", "LAN", "Cloudflare")
   url: string;            // URL string
+}
+
+interface Command {
+  label: string;          // Command label (e.g., "SSH", "Restart", "Logs")
+  command: string;        // Copiable command string
 }
 ```
 
 **Rules:**
 - `url` and `urls` are mutually exclusive. If `urls` is present, `url` is ignored.
-- If neither `url` nor `urls` is set, the link has no clickable URL (only `command` if present).
+- `command` (legacy) and `commands` (new) are mutually exclusive. If `commands` is present, `command` is ignored.
+- If neither `url` nor `urls` is set, the link has no clickable URL (only commands if present).
 - URLs not starting with `http` or `rdp` get `https://` prepended automatically.
 - `accent` defaults to `pink` if not set. Valid values: `pink`, `crimson`, `lavender`, `cream`, `peach`.
+- `visibility` is for display/filtering. Values: `public`, `access`, `internal`, `command`.
+- `host` shows a small server icon badge with the host identifier.
 
 ## Private Projects & Merge Logic
 
