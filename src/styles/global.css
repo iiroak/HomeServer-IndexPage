@@ -2,6 +2,7 @@
 
 /* ══════════════════════════════════════════
    Theme variables — light (default)
+   Grammy-inspired warm/terracotta palette
    ══════════════════════════════════════════ */
 :root {
   /* Accents (category badges — unchanged) */
@@ -12,68 +13,69 @@
   --rose: #d2303c;
   --sky: #d7deec;
 
-  /* System accent (indigo/cyan) */
-  --accent: #6366f1;
-  --accent-soft: #e0e7ff;
-  --accent-deep: #4f46e5;
-  --cyan: #06b6d4;
-  --cyan-soft: #cffafe;
+  /* System accent (Grammy terracotta) */
+  --accent: #8b4d2f;
+  --accent-soft: rgba(139, 77, 47, 0.1);
+  --accent-deep: #64331f;
+  --cyan: #18794e;
+  --cyan-soft: rgba(24, 121, 78, 0.08);
 
-  /* Surfaces & text — light */
-  --ink: #151827;
-  --ink-soft: #4b5565;
-  --ink-muted: #9ca3af;
-  --surface: #f7f8fb;
-  --card-bg: #ffffff;
-  --card-raised: #f9fafb;
-  --border: #e5e7eb;
-  --input-bg: #f9fafb;
-  --code-bg: #f1f5f9;
-  --code-text: #1e293b;
-  --code-border: #e2e8f0;
-  --link-bg: #ffffff;
-  --link-border: #e5e7eb;
-  --link-hover-bg: #f8fafc;
-  --card-shadow: 0 1px 3px rgba(0,0,0,.06), 0 8px 32px -12px rgba(99,102,241,.12);
-  --pill-bg: rgba(99, 102, 241, 0.08);
-  --pill-text: #151827;
+  /* Surfaces & text — Grammy warm */
+  --ink: #211b15;
+  --ink-soft: #73685d;
+  --ink-muted: #9e9289;
+  --surface: #f4f1ea;
+  --card-bg: #fffdf8;
+  --card-raised: #f8efe4;
+  --border: #e7ded0;
+  --input-bg: #fffaf3;
+  --code-bg: #f8efe4;
+  --code-text: #3d2e22;
+  --code-border: #e7ded0;
+  --link-bg: rgba(255, 253, 248, 0.92);
+  --link-border: #e7ded0;
+  --link-hover-bg: #fffdf8;
+  --card-shadow: 0 1px 3px rgba(60, 41, 20, 0.06), 0 12px 40px -18px rgba(60, 41, 20, 0.12);
+  --pill-bg: rgba(139, 77, 47, 0.08);
+  --pill-text: #211b15;
 
-  /* Blobs */
-  --blob-pink: rgba(99, 102, 241, 0.08);
-  --blob-lav: rgba(6, 182, 212, 0.06);
-  --blob-cream: rgba(139, 92, 246, 0.06);
+  /* Blobs (Grammy warm tones) */
+  --blob-pink: rgba(139, 77, 47, 0.06);
+  --blob-lav: rgba(244, 169, 136, 0.06);
+  --blob-cream: rgba(255, 230, 193, 0.08);
 
   color-scheme: light;
 }
 
 /* ══════════════════════════════════════════
    Dark theme overrides
+   Warm charcoal to complement Grammy palette
    ══════════════════════════════════════════ */
 [data-theme="dark"] {
-  --ink: #f1f5f9;
-  --ink-soft: #94a3b8;
-  --ink-muted: #64748b;
-  --surface: #0f172a;
-  --card-bg: #1e293b;
-  --card-raised: #334155;
-  --border: #334155;
-  --input-bg: #1e293b;
-  --code-bg: #0f172a;
-  --code-text: #e2e8f0;
-  --code-border: #334155;
-  --link-bg: #1e293b;
-  --link-border: #334155;
-  --link-hover-bg: #273449;
+  --ink: #f0e8df;
+  --ink-soft: #b8a99a;
+  --ink-muted: #7a6e63;
+  --surface: #1a1512;
+  --card-bg: #241e19;
+  --card-raised: #2e2620;
+  --border: #3d332b;
+  --input-bg: #1e1814;
+  --code-bg: #151110;
+  --code-text: #e0d5ca;
+  --code-border: #3d332b;
+  --link-bg: #241e19;
+  --link-border: #3d332b;
+  --link-hover-bg: #2e2620;
   --card-shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 32px -12px rgba(0,0,0,.6);
-  --pill-bg: rgba(99, 102, 241, 0.15);
-  --pill-text: #f1f5f9;
+  --pill-bg: rgba(139, 77, 47, 0.2);
+  --pill-text: #f0e8df;
 
-  --accent-soft: rgba(99, 102, 241, 0.2);
-  --cyan-soft: rgba(6, 182, 212, 0.15);
+  --accent-soft: rgba(139, 77, 47, 0.2);
+  --cyan-soft: rgba(24, 121, 78, 0.15);
 
-  --blob-pink: rgba(99, 102, 241, 0.06);
-  --blob-lav: rgba(6, 182, 212, 0.04);
-  --blob-cream: rgba(139, 92, 246, 0.04);
+  --blob-pink: rgba(139, 77, 47, 0.06);
+  --blob-lav: rgba(244, 169, 136, 0.04);
+  --blob-cream: rgba(255, 230, 193, 0.04);
 
   color-scheme: dark;
 }
@@ -107,7 +109,7 @@
   }
 
   ::selection {
-    background: rgba(99, 102, 241, 0.2);
+    background: rgba(139, 77, 47, 0.2);
     color: var(--ink);
   }
 
