@@ -54,16 +54,16 @@
     ]
   },
   {
-    "name": "DamaParts",
-    "description": "Catalogo de repuestos automotrices.",
+    "name": "DaMapArts",
+    "description": "Herramienta para map arts de Minecraft.",
     "accent": "cream",
-    "tags": ["catalogo", "web"],
+    "tags": ["minecraft", "mapart", "web"],
     "links": [
       {
-        "name": "DamaParts",
+        "name": "DaMapArts",
         "url": "https://damaparts.iroak.dev",
         "type": "web",
-        "description": "Catalogo de repuestos (GitHub Pages)."
+        "description": "Catalogo de map arts de Minecraft (GitHub Pages)."
       }
     ]
   }
