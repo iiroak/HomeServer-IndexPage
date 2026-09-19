@@ -22,11 +22,11 @@ CLI looks for `astro.config.js`, `astro.config.mjs`, `astro.config.cjs`, and `as
 
 ### CLI Commands
 
-- `npx astro dev` - Start the development server.
-- `npx astro build` - Build your project and write it to disk.
-- `npx astro check` - Check your project for errors.
-- `npx astro add` - Add an integration.
-- `npx astro sync` - Generate TypeScript types for all Astro modules.
+- `pnpm exec astro dev` - Start the development server.
+- `pnpm exec astro build` - Build your project and write it to disk.
+- `pnpm exec astro check` - Check your project for errors.
+- `pnpm exec astro add` - Add an integration.
+- `pnpm exec astro sync` - Generate TypeScript types for all Astro modules.
 
 **Re-run after adding/changing plugins.**
 
@@ -98,9 +98,9 @@ const { title, body } = Astro.props;
 
 ### Deploying with an Adapter
 
-1. Add the adapter: `npx astro add vercel --yes` (or `node`, `cloudflare`, `netlify`)
-2. Run `npx astro check` to catch type and configuration errors before building.
-3. Run `npx astro build` to produce the deployment artifact.
+1. Add the adapter: `pnpm exec astro add vercel --yes` (or `node`, `cloudflare`, `netlify`)
+2. Run `pnpm exec astro check` to catch type and configuration errors before building.
+3. Run `pnpm exec astro build` to produce the deployment artifact.
 4. Verify the build output directory (e.g. `dist/`) exists and is non-empty before proceeding.
 5. Deploy the output per the adapter's documentation.
 
@@ -112,22 +112,22 @@ Deploy to your favorite server, serverless, or edge host with build adapters. Us
 
 **Add [Node.js](https://docs.astro.build/en/guides/integrations-guide/node) adapter using astro add:**
 ```
-npx astro add node --yes
+pnpm exec astro add node --yes
 ```
 
 **Add [Cloudflare](https://docs.astro.build/en/guides/integrations-guide/cloudflare) adapter using astro add:**
 ```
-npx astro add cloudflare --yes
+pnpm exec astro add cloudflare --yes
 ```
 
 **Add [Netlify](https://docs.astro.build/en/guides/integrations-guide/netlify) adapter using astro add:**
 ```
-npx astro add netlify --yes
+pnpm exec astro add netlify --yes
 ```
 
 **Add [Vercel](https://docs.astro.build/en/guides/integrations-guide/vercel) adapter using astro add:**
 ```
-npx astro add vercel --yes
+pnpm exec astro add vercel --yes
 ```
 
 [Other Community adapters](https://astro.build/integrations/2/?search=&categories%5B%5D=adapters)

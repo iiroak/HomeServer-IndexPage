@@ -112,8 +112,8 @@ function ProductCard({ product }: { product: Product }) {
 
 ### Classes Not Applying
 - **Check content paths**: Ensure all template files are included in `content: []` in config
-- **Verify build**: Run `npm run build` to regenerate purged CSS
-- **Dev mode**: Use `npx tailwindcss -o` with `--watch` flag for live updates
+- **Verify build**: Run `pnpm build` to regenerate purged CSS
+- **Dev mode**: Use `pnpm exec tailwindcss -o` with `--watch` flag for live updates
 
 ### Responsive Styles Not Working
 - **Order matters**: Responsive prefixes must come before non-responsive (e.g., `md:flex` not `flex md:flex`)

@@ -17,6 +17,7 @@
     "tailwindcss": "^4.2.4"
   },
   "devDependencies": {
+    "@astrojs/check": "^0.9.10",
     "typescript": "^5.8.0"
   },
   "packageManager": "pnpm@10.10.0"

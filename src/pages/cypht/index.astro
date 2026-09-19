@@ -1,0 +1,51 @@
+---
+import CyphtPublicPage from "../../components/CyphtPublicPage.astro";
+
+const description = "Iroak Mail es un cliente de correo web basado en Cypht para conectar y administrar cuentas de correo desde una interfaz centralizada.";
+---
+
+<CyphtPublicPage title="Tu correo, en un solo lugar" {description}>
+  <div class="grid gap-8 sm:grid-cols-[1.1fr_0.9fr] sm:items-start">
+    <div>
+      <h2 class="text-2xl font-black tracking-tight" style="color: var(--ink)">Qué es Iroak Mail</h2>
+      <p class="mt-4 leading-8" style="color: var(--ink-soft)">
+        Iroak Mail ofrece una interfaz web para consultar y gestionar cuentas de correo compatibles con
+        IMAP y SMTP. Cuando conectas una cuenta de Gmail, puedes autorizarla mediante Google OAuth sin
+        entregar tu contraseña de Google a Iroak Mail.
+      </p>
+      <p class="mt-4 leading-8" style="color: var(--ink-soft)">
+        El servicio utiliza Cypht, un proyecto de código abierto. La instancia está protegida por
+        Cloudflare Access y solo las personas autorizadas pueden entrar al correo.
+      </p>
+    </div>
+
+    <aside class="rounded-3xl p-5" style="background: var(--card-raised); border: 1px solid var(--border)">
+      <p class="text-xs font-bold uppercase tracking-[0.18em]" style="color: var(--accent)">Transparencia</p>
+      <ul class="mt-4 space-y-3 text-sm leading-6" style="color: var(--ink-soft)">
+        <li>Sin publicidad basada en el contenido del correo.</li>
+        <li>Sin venta de datos personales.</li>
+        <li>Los permisos de Google se usan solo para la función de correo autorizada.</li>
+      </ul>
+    </aside>
+  </div>
+
+  <div class="mt-10 grid gap-4 sm:grid-cols-3">
+    <section class="rounded-2xl border p-5" style="border-color: var(--border)">
+      <h2 class="font-bold" style="color: var(--ink)">Conecta</h2>
+      <p class="mt-2 text-sm leading-6" style="color: var(--ink-soft)">Añade cuentas de Gmail y otros proveedores compatibles.</p>
+    </section>
+    <section class="rounded-2xl border p-5" style="border-color: var(--border)">
+      <h2 class="font-bold" style="color: var(--ink)">Autoriza</h2>
+      <p class="mt-2 text-sm leading-6" style="color: var(--ink-soft)">Google gestiona el acceso OAuth y puedes revocarlo cuando quieras.</p>
+    </section>
+    <section class="rounded-2xl border p-5" style="border-color: var(--border)">
+      <h2 class="font-bold" style="color: var(--ink)">Controla</h2>
+      <p class="mt-2 text-sm leading-6" style="color: var(--ink-soft)">Consulta cómo tratamos tus datos antes de conectar una cuenta.</p>
+    </section>
+  </div>
+
+  <div class="mt-10 flex flex-wrap gap-3">
+    <a href="https://mail.iroak.dev" class="inline-flex items-center rounded-full px-5 py-3 text-sm font-bold transition hover:opacity-80" style="background: var(--accent); color: var(--card-bg)">Abrir Iroak Mail</a>
+    <a href="/cypht/privacy" class="inline-flex items-center rounded-full border px-5 py-3 text-sm font-bold transition hover:border-[var(--accent)]" style="border-color: var(--border); color: var(--ink-soft)">Leer privacidad</a>
+  </div>
+</CyphtPublicPage>

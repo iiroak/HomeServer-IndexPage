@@ -84,6 +84,7 @@ function hrefOrNone(u: string) {
 <Layout
   title="Index - Directorio de paginas de iroaK"
   description="Indice privado para encontrar rapidamente URLs y comandos de proyectos del homeserver."
+  canonicalUrl="https://index.iroak.dev/"
 >
   <main id="main-content" class="relative overflow-x-hidden px-4 py-8 sm:px-6 lg:px-8">
     <!-- Decorative blobs -->
@@ -549,10 +550,9 @@ function hrefOrNone(u: string) {
   });
 
   // ── Login / Private projects ──
-  const loginBtn = document.getElementById("loginBtn");
+  const loginBtn = document.getElementById("loginBtn") as HTMLButtonElement;
   const privateLoader = document.getElementById("privateLoader");
   const projectsGrid = document.getElementById("projectsGrid");
-  const projectsStatEl = document.querySelector("#projectsGrid")?.previousElementSibling?.querySelector("span") as HTMLElement | null;
 
   let privateLoaded = false;
   let privateLoadPromise: Promise<void> | null = null;

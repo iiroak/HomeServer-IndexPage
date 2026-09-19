@@ -4,7 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 
 export default defineConfig({
-  site: "https://iroak.cl",
+  site: "https://iroak.dev",
   output: "server",
   adapter: node({
     mode: "standalone",

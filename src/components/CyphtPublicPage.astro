@@ -1,0 +1,51 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description: string;
+  eyebrow?: string;
+}
+
+const { title, description, eyebrow = "Iroak Mail" } = Astro.props;
+const canonicalUrl = `https://iroak.dev${Astro.url.pathname}`;
+---
+
+<Layout
+  title={`${title} | Iroak Mail`}
+  description={description}
+  canonicalUrl={canonicalUrl}
+>
+  <main id="main-content" class="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
+    <div class="mx-auto max-w-4xl">
+      <header class="flex flex-wrap items-center justify-between gap-4 py-3">
+        <a href="/cypht" class="inline-flex items-center gap-3 font-bold tracking-tight" style="color: var(--ink)">
+          <span class="inline-flex size-10 items-center justify-center rounded-2xl text-sm font-black" style="background: var(--accent); color: var(--card-bg)">IM</span>
+          <span>Iroak Mail</span>
+        </a>
+        <nav aria-label="Navegación pública" class="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm font-semibold" style="color: var(--ink-soft)">
+          <a href="/cypht" class="transition hover:text-[var(--accent)]">Qué es</a>
+          <a href="/cypht/privacy" class="transition hover:text-[var(--accent)]">Privacidad</a>
+          <a href="/cypht/terms" class="transition hover:text-[var(--accent)]">Términos</a>
+          <a href="https://mail.iroak.dev" class="rounded-full px-4 py-2 text-xs font-bold uppercase tracking-wider transition hover:opacity-80" style="background: var(--accent); color: var(--card-bg)">Abrir correo</a>
+        </nav>
+      </header>
+
+      <div class="mt-12 sm:mt-20">
+        <p class="text-xs font-bold uppercase tracking-[0.24em]" style="color: var(--accent)">{eyebrow}</p>
+        <h1 class="mt-4 max-w-3xl text-4xl font-black tracking-tight sm:text-6xl" style="color: var(--ink)">{title}</h1>
+        <p class="mt-5 max-w-2xl text-base leading-8 sm:text-lg" style="color: var(--ink-soft)">{description}</p>
+      </div>
+
+      <article class="card mt-10 p-6 sm:p-10">
+        <slot />
+      </article>
+
+      <footer class="flex flex-col gap-2 py-10 text-xs sm:flex-row sm:items-center sm:justify-between" style="color: var(--ink-muted)">
+        <span>Iroak Mail · Cliente web basado en Cypht</span>
+        <a href="mailto:personal.bastian@gmail.com" class="font-semibold hover:text-[var(--accent)]">Contacto</a>
+      </footer>
+    </div>
+  </main>
+</Layout>

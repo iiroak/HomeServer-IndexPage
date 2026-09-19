@@ -10,11 +10,11 @@ Installing Tailwind CSS using the Vite plugin for modern JavaScript frameworks.
 
 ```bash
 # Create a new Vite project
-npm create vite@latest my-project
+pnpm create vite@latest my-project
 cd my-project
 
 # Install Tailwind CSS and Vite plugin
-npm install tailwindcss @tailwindcss/vite
+pnpm add tailwindcss @tailwindcss/vite
 ```
 
 ```javascript

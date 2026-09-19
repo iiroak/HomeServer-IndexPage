@@ -1,0 +1,54 @@
+---
+import CyphtPublicPage from "../../components/CyphtPublicPage.astro";
+
+const description = "Política de privacidad de Iroak Mail, cliente web basado en Cypht que permite conectar cuentas de correo mediante IMAP, SMTP y Google OAuth.";
+---
+
+<CyphtPublicPage title="Política de privacidad" {description} eyebrow="Transparencia">
+  <p class="text-sm" style="color: var(--ink-muted)">Última actualización: 18 de septiembre de 2026</p>
+
+  <div class="prose-iroak mt-8 space-y-8">
+    <section>
+      <h2>1. Quién opera el servicio</h2>
+      <p>Iroak Mail es una instancia autogestionada de Cypht operada por el equipo de Iroak. Para consultas sobre privacidad puedes escribir a <a href="mailto:personal.bastian@gmail.com">personal.bastian@gmail.com</a>.</p>
+    </section>
+
+    <section>
+      <h2>2. Qué datos tratamos</h2>
+      <p>Según las cuentas que decidas conectar, Iroak Mail puede tratar:</p>
+      <ul>
+        <li>Tu dirección de correo y datos básicos de la cuenta necesarios para identificarla.</li>
+        <li>Mensajes, encabezados, carpetas, etiquetas y archivos adjuntos que solicites ver o gestionar.</li>
+        <li>Tokens OAuth de Google necesarios para mantener la autorización sin almacenar tu contraseña de Google.</li>
+        <li>Datos técnicos mínimos de sesión y seguridad, como registros de acceso y cookies esenciales.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>3. Cómo usamos los datos de Google</h2>
+      <p>Los datos de Google se usan únicamente para mostrar y gestionar la cuenta de Gmail que conectaste en Iroak Mail, incluyendo las funciones de lectura, organización y envío que habilite Cypht.</p>
+      <p>No usamos el contenido de Gmail para publicidad, no lo vendemos, no lo usamos para entrenar modelos de inteligencia artificial y no lo compartimos con terceros salvo cuando sea necesario para prestar el servicio, cumplir una obligación legal o proteger la seguridad.</p>
+    </section>
+
+    <section>
+      <h2>4. Almacenamiento y seguridad</h2>
+      <p>La configuración de las cuentas y los tokens se almacenan en el perfil privado de Cypht en la infraestructura de Iroak. El acceso público a la aplicación está protegido por Cloudflare Access y la conexión se sirve mediante HTTPS.</p>
+      <p>Ningún sistema conectado a Internet es completamente infalible. Aplicamos controles razonables de acceso y no solicitamos tu contraseña de Google durante el flujo OAuth.</p>
+    </section>
+
+    <section>
+      <h2>5. Compartición y proveedores</h2>
+      <p>Para entregar el servicio, Iroak Mail se comunica con Google y con los proveedores de correo que tú configures, por ejemplo mediante IMAP y SMTP. No transferimos los datos para fines independientes de esos servicios.</p>
+    </section>
+
+    <section>
+      <h2>6. Retención y eliminación</h2>
+      <p>Puedes retirar la autorización de Google desde tu cuenta de Google y eliminar la cuenta conectada desde Cypht. También puedes solicitar la eliminación de los datos asociados escribiendo al correo de contacto. Conservaremos únicamente lo necesario para resolver la solicitud, cumplir obligaciones legales o mantener la seguridad del servicio.</p>
+    </section>
+
+    <section>
+      <h2>7. Cambios y contacto</h2>
+      <p>Podemos actualizar esta política cuando cambien el servicio o sus requisitos. Publicaremos la versión vigente en esta página. Para preguntas o solicitudes relacionadas con tus datos, contacta a <a href="mailto:personal.bastian@gmail.com">personal.bastian@gmail.com</a>.</p>
+    </section>
+  </div>
+</CyphtPublicPage>

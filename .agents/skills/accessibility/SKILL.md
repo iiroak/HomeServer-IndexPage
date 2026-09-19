@@ -386,10 +386,10 @@ Use `aria-live` regions to announce dynamic content changes without moving focus
 ### Automated testing
 ```bash
 # Lighthouse accessibility audit
-npx lighthouse https://example.com --only-categories=accessibility
+pnpm dlx lighthouse https://example.com --only-categories=accessibility
 
 # axe-core
-npm install @axe-core/cli -g
+pnpm add --global @axe-core/cli
 axe https://example.com
 ```
 

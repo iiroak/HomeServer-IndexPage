@@ -211,3 +211,29 @@
 
 [data-theme="dark"] .theme-icon-light { display: block; }
 [data-theme="dark"] .theme-icon-dark  { display: none; }
+
+/* Public Cypht pages use the same warm document language as the index. */
+.prose-iroak h2 {
+  color: var(--ink);
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.prose-iroak p,
+.prose-iroak li {
+  color: var(--ink-soft);
+  line-height: 1.85;
+}
+
+.prose-iroak ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.prose-iroak a {
+  color: var(--accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}

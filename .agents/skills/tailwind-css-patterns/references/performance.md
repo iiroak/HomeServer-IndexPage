@@ -95,7 +95,7 @@ module.exports = {
 
 ```bash
 # Use cssnano for minification
-npm install -D cssnano
+pnpm add -D cssnano
 
 # In postcss.config.js
 module.exports = {
