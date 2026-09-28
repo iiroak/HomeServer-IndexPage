@@ -1,0 +1,19 @@
+{
+  "id": "/",
+  "name": "Index — iroaK",
+  "short_name": "Index",
+  "description": "Directorio de servicios de iroaK.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#14151a",
+  "theme_color": "#1a1512",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    }
+  ]
+}

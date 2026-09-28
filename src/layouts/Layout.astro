@@ -3,10 +3,19 @@ interface Props {
   title: string;
   description: string;
   canonicalUrl?: string;
+  /** Evita el JSON-LD de "Index" hardcodeado — usado por /cypht/*, que tiene su propia identidad. */
+  skipJsonLd?: boolean;
+  /** robots: noindex — usado por /app (panel privado, no debe indexarse). */
+  noindex?: boolean;
+  /** Añade la configuración PWA solo a la página pública que la solicita. */
+  pwa?: boolean;
 }
 
-const { title, description, canonicalUrl } = Astro.props;
-const siteUrl = import.meta.env.SITE || "https://iroak.cl";
+const { title, description, canonicalUrl, skipJsonLd = false, noindex = false, pwa = false } = Astro.props;
+// import.meta.env.SITE viene de astro.config.mjs (`site: "https://index.iroak.dev"`).
+// El fallback anterior apuntaba a "iroak.cl" — dominio distinto y no
+// usado por este servicio — y quedaba fuera de sincronía con robots.txt.
+const siteUrl = import.meta.env.SITE || "https://index.iroak.dev";
 const canonical = canonicalUrl || new URL(Astro.url.pathname, siteUrl).href;
 ---
 <!doctype html>
@@ -15,43 +24,63 @@ const canonical = canonicalUrl || new URL(Astro.url.pathname, siteUrl).href;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content={description} />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content={noindex ? "noindex, nofollow" : "index, follow"} />
     <meta name="theme-color" content="#1a1512" media="(prefers-color-scheme: dark)" />
     <meta name="theme-color" content="#f4f1ea" media="(prefers-color-scheme: light)" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    {pwa && <link rel="manifest" href="/manifest.webmanifest" />}
+    {!noindex && <link rel="sitemap" type="application/xml" href="/sitemap-index.xml" />}
     <title>{title}</title>
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "WebSite",
-      "name": "Index - Directorio de paginas de iroaK",
-      "url": siteUrl,
-      "description": description,
-      "publisher": {
-        "@type": "Person",
-        "name": "iroaK",
-        "url": siteUrl
-      }
-    })} />
-    <script type="application/ld+json" set:html={JSON.stringify({
-      "@context": "https://schema.org",
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@type": "ListItem",
-          "position": 1,
-          "name": "Home",
-          "item": siteUrl
-        },
-        {
-          "@type": "ListItem",
-          "position": 2,
-          "name": "Index",
-          "item": canonical
-        }
-      ]
-    })} />
+    {!skipJsonLd && (
+      <>
+        <script type="application/ld+json" set:html={JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "WebSite",
+          "name": "Index - Directorio de paginas de iroaK",
+          "url": siteUrl,
+          "description": description,
+          "publisher": {
+            "@type": "Person",
+            "name": "iroaK",
+            "url": siteUrl
+          }
+        })} />
+        <script type="application/ld+json" set:html={JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": siteUrl
+            },
+            {
+              "@type": "ListItem",
+              "position": 2,
+              "name": "Index",
+              "item": canonical
+            }
+          ]
+        })} />
+      </>
+    )}
+    <script is:inline>
+      // Anti-FOUC: aplica el tema guardado ANTES del primer paint. El
+      // <script> del index.astro anterior corría diferido (después del
+      // parseo del HTML), así que un usuario con tema claro guardado veía
+      // un destello oscuro (el :root es oscuro-por-defecto... realmente al
+      // revés: :root es claro y el default guardado es "dark", así que el
+      // destello era claro→oscuro). Este bloque es inline y sin defer, se
+      // ejecuta antes de que el navegador pinte nada.
+      (function () {
+        try {
+          var theme = localStorage.getItem("homeserver-theme") || "dark";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <a href="#main-content" class="skip-link">Saltar al contenido principal</a>

@@ -1,28 +1,27 @@
+## Uso: `docker compose up -d` levanta SOLO Postgres para desarrollo local.
+##
+## La app en sí NO corre aquí — se ejecuta con `pnpm dev` contra este
+## Postgres. En producción (Coolify, CT102) la app se conecta directamente
+## a CT110 (10.10.10.232:5432); este compose nunca se usa allí.
+##
+## Reemplaza al compose anterior de 2 servicios (index-public +
+## index-private), que dependía de `../HomeServer-IndexPrivate` — un repo
+## que nunca existió en disco. Esa distinción público/privado ahora es una
+## columna (`visibility`) en la tabla `nodes` de esta misma base, no dos
+## servicios separados.
 services:
-  index-public:
-    build: .
-    container_name: index-public
+  postgres:
+    image: postgres:16-alpine
+    container_name: index-page-dev-postgres
+    environment:
+      POSTGRES_USER: index_page
+      POSTGRES_PASSWORD: dev_only_password
+      POSTGRES_DB: index_page
     ports:
-      - "4321:4321"
-    environment:
-      PRIVATE_INDEX_URL: http://index-private:3000
-    depends_on:
-      - index-private
+      - "55434:5432"
+    volumes:
+      - index-page-dev-data:/var/lib/postgresql/data
     restart: unless-stopped
-    networks:
-      - index-net
 
-  index-private:
-    build: ../HomeServer-IndexPrivate
-    container_name: index-private
-    expose:
-      - "3000"
-    environment:
-      PORT: "3000"
-    restart: unless-stopped
-    networks:
-      - index-net
-
-networks:
-  index-net:
-    driver: bridge
+volumes:
+  index-page-dev-data:

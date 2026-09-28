@@ -1,11 +1,14 @@
 @import "tailwindcss";
 
-/* ══════════════════════════════════════════
-   Theme variables — light (default)
-   Grammy-inspired warm/terracotta palette
-   ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   LEGACY — Grammy-inspired warm/terracotta palette.
+   Used exclusively by /cypht/* (Iroak Mail OAuth/legal microsite,
+   CyphtPublicPage.astro) via raw `var(--name)` in inline styles and
+   the `.card` / `.prose-iroak` utilities. Do NOT rename these: the
+   Cypht pages reference them directly and are out of scope for the
+   index redesign.
+   ══════════════════════════════════════════════════════════════ */
 :root {
-  /* Accents (category badges — unchanged) */
   --blush: #ffabc2;
   --blush-deep: #dd7e9a;
   --cream: #ffe6c1;
@@ -13,14 +16,12 @@
   --rose: #d2303c;
   --sky: #d7deec;
 
-  /* System accent (Grammy terracotta) */
   --accent: #8b4d2f;
   --accent-soft: rgba(139, 77, 47, 0.1);
   --accent-deep: #64331f;
   --cyan: #18794e;
   --cyan-soft: rgba(24, 121, 78, 0.08);
 
-  /* Surfaces & text — Grammy warm */
   --ink: #211b15;
   --ink-soft: #73685d;
   --ink-muted: #9e9289;
@@ -39,18 +40,63 @@
   --pill-bg: rgba(139, 77, 47, 0.08);
   --pill-text: #211b15;
 
-  /* Blobs (Grammy warm tones) */
   --blob-pink: rgba(139, 77, 47, 0.06);
   --blob-lav: rgba(244, 169, 136, 0.06);
   --blob-cream: rgba(255, 230, 193, 0.08);
 
+  /* ════════════════════════════════════════════════════════════
+     APP — tokens del rediseño (/, /app), portados de Kloset
+     (Kloset/src/app/globals.css). Prefijo `--app-` a propósito:
+     Kloset declara `--accent`, `--accent-soft` y `--surface` con
+     nombres y valores distintos a los legacy de arriba. Sin el
+     prefijo, la cascada de :root pisaría el `--accent` terracota
+     que usan las páginas de Cypht. Los componentes copiados NUNCA
+     leen estas variables directamente — solo consumen las clases
+     Tailwind (`bg-surface`, `text-accent`, ...) generadas más abajo
+     en `@theme inline`, así que renombrar aquí no toca ni una línea
+     de los componentes.
+     ════════════════════════════════════════════════════════════ */
+  --app-background: #f8f8fa;
+  --app-surface: #ffffff;
+  --app-surface-soft: #f1f1f5;
+  --app-surface-muted: #ececf1;
+
+  --app-text-primary: #111113;
+  --app-text-secondary: #5f6068;
+  --app-text-tertiary: #9a9aa3;
+  --app-text-disabled: #c1c1c8;
+
+  --app-border-soft: #e7e7ec;
+  --app-divider: #ebebef;
+
+  --app-icon-primary: #171719;
+  --app-icon-secondary: #8f9098;
+
+  --app-accent: #387ff0;
+  --app-accent-soft: #eaf2ff;
+
+  --app-fab: #1b1b1d;
+  --app-fab-content: #ffffff;
+
+  --app-overlay: rgba(0, 0, 0, 0.43);
+
+  --app-gradient-start: #2e91ff;
+  --app-gradient-end: #8b4ff7;
+
+  --app-danger: #d53a3a;
+
+  /* Tokenizados desde valores hardcodeados en los componentes de Kloset
+     (button.tsx neutral variant, toast.tsx) para que el modo oscuro los
+     pueda redefinir sin tocar componentes. */
+  --app-neutral-btn: #b8b8bd;
+  --app-toast-bg: #232325;
+
   color-scheme: light;
 }
 
-/* ══════════════════════════════════════════
-   Dark theme overrides
-   Warm charcoal to complement Grammy palette
-   ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   LEGACY dark overrides — Cypht únicamente.
+   ══════════════════════════════════════════════════════════════ */
 [data-theme="dark"] {
   --ink: #f0e8df;
   --ink-soft: #b8a99a;
@@ -66,7 +112,7 @@
   --link-bg: #241e19;
   --link-border: #3d332b;
   --link-hover-bg: #2e2620;
-  --card-shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 32px -12px rgba(0,0,0,.6);
+  --card-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 32px -12px rgba(0, 0, 0, 0.6);
   --pill-bg: rgba(139, 77, 47, 0.2);
   --pill-text: #f0e8df;
 
@@ -77,26 +123,169 @@
   --blob-lav: rgba(244, 169, 136, 0.04);
   --blob-cream: rgba(255, 230, 193, 0.04);
 
+  /* ════════════════════════════════════════════════════════════
+     APP dark overrides. Kloset no tiene modo oscuro (verificado:
+     cero `dark:`, cero `prefers-color-scheme`, cero `data-theme` en
+     todo el repo) — esta paleta es nueva, diseñada para mantener el
+     mismo contraste relativo que la versión clara. Reutiliza el
+     mismo atributo `data-theme` que ya gobierna el tema legacy, así
+     que un único toggle en /app controla ambos.
+     ════════════════════════════════════════════════════════════ */
+  --app-background: #14151a;
+  --app-surface: #1c1d23;
+  --app-surface-soft: #23242b;
+  --app-surface-muted: #2b2c34;
+
+  --app-text-primary: #f4f4f6;
+  --app-text-secondary: #a8a9b3;
+  --app-text-tertiary: #767780;
+  --app-text-disabled: #4a4b54;
+
+  --app-border-soft: #2f303a;
+  --app-divider: #2a2b34;
+
+  --app-icon-primary: #f4f4f6;
+  --app-icon-secondary: #8b8c96;
+
+  --app-accent: #5b9dff;
+  --app-accent-soft: rgba(91, 157, 255, 0.16);
+
+  /* El FAB es el elemento de mayor contraste sobre la superficie: en
+     claro es casi negro sobre blanco, en oscuro se invierte a casi
+     blanco sobre oscuro para conservar ese mismo rol visual. */
+  --app-fab: #f4f4f6;
+  --app-fab-content: #14151a;
+
+  --app-overlay: rgba(0, 0, 0, 0.6);
+
+  --app-gradient-start: #2e91ff;
+  --app-gradient-end: #8b4ff7;
+
+  --app-danger: #ff6b6b;
+
+  --app-neutral-btn: #4a4b54;
+  --app-toast-bg: #d9dade;
+
   color-scheme: dark;
 }
 
-/* ══════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    Tailwind theme tokens
-   ══════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════ */
 @theme {
-  --font-sans: "Inter", "DM Sans", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 }
 
-/* ══════════════════════════════════════════
+@theme inline {
+  /* Alias de las utilidades Tailwind (bg-surface, text-accent, bg-fab...)
+     hacia los tokens --app-* de arriba. Este es el único puente entre
+     el namespace legacy y el nuevo: los componentes portados de Kloset
+     solo conocen estos nombres de clase. */
+  --color-background: var(--app-background);
+  --color-surface: var(--app-surface);
+  --color-surface-soft: var(--app-surface-soft);
+  --color-surface-muted: var(--app-surface-muted);
+
+  --color-text-primary: var(--app-text-primary);
+  --color-text-secondary: var(--app-text-secondary);
+  --color-text-tertiary: var(--app-text-tertiary);
+  --color-text-disabled: var(--app-text-disabled);
+
+  --color-border-soft: var(--app-border-soft);
+  --color-divider: var(--app-divider);
+
+  --color-icon-primary: var(--app-icon-primary);
+  --color-icon-secondary: var(--app-icon-secondary);
+
+  --color-accent: var(--app-accent);
+  --color-accent-soft: var(--app-accent-soft);
+
+  --color-fab: var(--app-fab);
+  --color-fab-content: var(--app-fab-content);
+
+  --color-overlay: var(--app-overlay);
+
+  --color-danger: var(--app-danger);
+
+  --color-neutral-btn: var(--app-neutral-btn);
+  --color-toast-bg: var(--app-toast-bg);
+
+  /*
+   * Radios, sombras, tipografía y movimiento son valores literales
+   * (Kloset DESIGN.md), no referencian otra variable — declarados
+   * directamente aquí. NUNCA dupliques su nombre en :root: Tailwind
+   * generaría una referencia circular (--radius-xs: var(--radius-xs))
+   * que rompe el build en silencio. Ver Kloset/src/app/globals.css
+   * para la nota original.
+   */
+  --radius-xs: 8px;
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+  --radius-2xl: 28px;
+
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.035);
+  --shadow-floating: 0 5px 20px rgba(0, 0, 0, 0.1);
+  --shadow-sheet: 0 -8px 24px rgba(0, 0, 0, 0.08);
+
+  /* Reemplaza el --font-sans legacy (Inter/DM Sans) que nunca se
+     cargó como webfont — este stack system-ui es honesto sobre lo
+     que el navegador rendería de todos modos. */
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --text-display: 30px;
+  --text-display--line-height: 36px;
+
+  --text-title-lg: 25px;
+  --text-title-lg--line-height: 31px;
+
+  --text-title: 20px;
+  --text-title--line-height: 26px;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 24px;
+
+  --text-body: 16px;
+  --text-body--line-height: 22px;
+
+  --text-body-medium: 16px;
+  --text-body-medium--line-height: 22px;
+
+  --text-caption: 14px;
+  --text-caption--line-height: 19px;
+
+  --text-micro: 12px;
+  --text-micro--line-height: 16px;
+
+  --duration-fast: 110ms;
+  --duration-base: 180ms;
+  --duration-slow: 240ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+/* Estructurales, no de color — mismo valor en claro y oscuro. Leídos
+   directamente por los componentes vía `var(--bottom-nav-h)` en clases
+   Tailwind arbitrarias, así que el nombre debe coincidir exactamente
+   con el de Kloset/src/components/ui/bottom-navigation.tsx y toast.tsx. */
+:root {
+  --page-x: 18px;
+  --bottom-nav-h: 61px;
+}
+
+/* ══════════════════════════════════════════════════════════════
    Base styles
-   ══════════════════════════════════════════ */
+   ══════════════════════════════════════════════════════════════ */
 @layer base {
   html {
     scroll-behavior: smooth;
     overflow-x: hidden;
   }
 
+  /* El fondo con blobs es del microsite legacy de Cypht. Las páginas
+     nuevas (/, /app) pintan su propio `bg-background` opaco encima vía
+     AppScaffold, así que este fondo queda oculto para ellas sin
+     necesidad de condicionarlo. */
   body {
     @apply min-h-screen font-sans antialiased;
     background:
@@ -127,9 +316,25 @@
   }
 }
 
-/* ══════════════════════════════════════════
-   Utility classes
-   ══════════════════════════════════════════ */
+/* Respeta prefers-reduced-motion en toda la app, no solo en un
+   componente suelto (la versión anterior lo hacía en un <style>
+   scoped de index.astro, que desaparece con el rediseño). No anula la
+   opacidad de los estados de pulsación: es información (el control
+   respondió), no decoración — mismo criterio que Kloset. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Utility classes — legacy, usadas por /cypht/* (.card, .prose-iroak)
+   ══════════════════════════════════════════════════════════════ */
 @utility card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -157,18 +362,9 @@
   min-width: 0;
 }
 
-/* ══════════════════════════════════════════
-   Accent visibility helpers
-   ══════════════════════════════════════════ */
-.accent-light { display: inline-flex; }
-.accent-dark  { display: none; }
-
-[data-theme="dark"] .accent-light { display: none; }
-[data-theme="dark"] .accent-dark  { display: inline-flex; }
-
-/* ══════════════════════════════════════════
-   Skip link for keyboard navigation
-   ══════════════════════════════════════════ */
+/* ══════════════════════════════════════════════════════════════
+   Skip link for keyboard navigation — genérico, usado por Layout.astro
+   ══════════════════════════════════════════════════════════════ */
 .skip-link {
   position: absolute;
   width: 1px;
@@ -202,15 +398,6 @@
   text-decoration: none;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
-
-/* ══════════════════════════════════════════
-   Theme toggle icon visibility
-   ══════════════════════════════════════════ */
-.theme-icon-light { display: none; }
-.theme-icon-dark  { display: block; }
-
-[data-theme="dark"] .theme-icon-light { display: block; }
-[data-theme="dark"] .theme-icon-dark  { display: none; }
 
 /* Public Cypht pages use the same warm document language as the index. */
 .prose-iroak h2 {

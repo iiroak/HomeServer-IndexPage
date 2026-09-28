@@ -4,324 +4,131 @@
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:4321
-pnpm build        # Production build (Astro server mode)
-pnpm preview      # Preview production build
-pnpm astro check  # TypeScript type-check
+docker compose up -d          # Postgres local de desarrollo
+pnpm db:migrate                # Aplica src/db/schema.sql (requiere INDEX_PAGE_DATABASE_URL)
+pnpm db:seed                   # Catálogo público heredado; solo con nodes vacío
+pnpm dev                       # http://localhost:4321
+pnpm build                     # Build de producción (Astro server mode)
+pnpm astro check                # Type-check
 ```
 
-Package manager: **pnpm** (lockfile is `pnpm-lock.yaml`).
+Package manager: **pnpm** (lockfile `pnpm-lock.yaml`). Copia `.env.example` a `.env.local` y ajusta `INDEX_PAGE_DATABASE_URL` antes de `pnpm dev`.
 
-## Architecture
+## Arquitectura
 
-- **Astro 5**, SSR mode via `@astrojs/node` (standalone)
-- **Tailwind CSS 4** via `@tailwindcss/vite` plugin
-- TypeScript strict, single-page app with client-side JS
-- **No database** — public data lives in `src/data/projects.json` (flat file in repo)
+- **Astro 5**, SSR (`@astrojs/node` standalone) + **React 19 islands** (`@astrojs/react`) para todo lo interactivo.
+- **Tailwind CSS 4**, config CSS-first (`@theme inline` en `src/styles/global.css`, sin `tailwind.config.*`).
+- **Postgres** (CT110 en producción, `10.10.10.232:5432`; contenedor local en dev) — reemplaza al `src/data/projects.json` plano. Sin ORM: `pg` crudo + runner de migraciones propio, copiado del patrón de Fit-API.
+- **Sistema de diseño portado de Kloset** (`~/projects/Kloset`): tokens, bottom nav + FAB, bottom sheet, componentes de `src/components/ui/`. Con modo oscuro añadido (Kloset no lo tiene) y namespace `--app-*` en las variables para no colisionar con la paleta legacy de `/cypht/*`.
 
 ```
 src/
-  data/projects.json          # Public projects (source of truth)
-  pages/index.astro           # Main page (SSR + client-side JS for filters/private)
-  pages/api/login.ts          # GET /api/login → redirect to /?unlock=1
-  pages/api/private-projects.ts  # GET /api/private-projects → proxy to private service
-  pages/api/private-health.ts    # GET /api/private-health → health check
-  layouts/Layout.astro        # HTML shell, SEO, JSON-LD
-  styles/global.css           # Theme tokens (light/dark), Tailwind utilities
+  db/
+    schema.sql              # Tablas nodes + repos, funciones IMMUTABLE para índices GIN
+    migrate.mjs             # Runner de migraciones, ejecutable dentro del contenedor
+    seed.mjs                # Seed único e idempotente del catálogo público heredado
+    pool.ts                 # Pool de conexión compartido
+  lib/
+    types.ts                # ServiceNode, ServiceNodeTree, RepoRef
+    nodes.ts                # Queries de árbol: listPublicTree, listAllTree, CRUD
+    repos.ts                # Queries de repos de referencia (CRUD)
+    tree.ts                 # pruneTree (poda por visibilidad), searchTree, findNode
+    access.ts               # Verificación de JWT de Cloudflare Access + allowlist de emails
+    schemas.ts              # Validación Zod de servidor (nodes, repos)
+    http.ts                 # CORS con allowlist real (reemplaza el Origin-reflejado del código viejo)
+  components/
+    ui/                     # Kit portado de Kloset: Button, Card, Chip, BottomSheet,
+                             # BottomNavigation, IconButton, ListRow, TopBar, Toast, icons
+    app/                    # Específico del dominio: TreeBrowser, NodeRow, NodeForm,
+                             # RepoForm, RepoList, AppShell, PublicShell, NodeIcon,
+                             # CopyButton, SettingsView, use-theme
+  pages/
+    index.astro              # Público — SSR con listPublicTree(), sin fetch de cliente
+    app.astro                 # Privado — verifica Access server-side antes de renderizar AppShell
+    api/nodes/{index,[id],reorder}.ts
+    api/repos/{index,[id]}.ts
+    cypht/*                  # Microsite legal de Iroak Mail, independiente, NO tocar
+                              # su sistema de diseño (usa las vars legacy de global.css)
+  layouts/Layout.astro        # HTML shell, SEO, anti-FOUC de tema, soporta noindex
+  styles/global.css           # Vars legacy (Cypht) + vars --app-* (Kloset-derivadas) + @theme inline
 ```
 
-## Data Flow
+## Modelo de datos
 
-```
-Browser
-  │
-  ├── GET /                    → Astro SSR renders projects.json
-  │
-  ├── Click 🔒 button         → GET /api/login → 302 redirect to /?unlock=1
-  │                               (triggers CF Access auth if needed)
-  │
-  └── GET /api/private-projects → Proxy to PRIVATE_INDEX_URL(s)
-                                   → GET {upstream}/projects
-                                   → Returns JSON array of private projects
-                                   → Frontend merges into existing grid
+Un solo árbol autorreferenciado (`nodes.parent_id`). El esquema soporta cualquier profundidad; la UI solo navega 2 niveles (raíz → dentro de una carpeta).
+
+```sql
+nodes(id, parent_id, kind['folder'|'link'], name, description, visibility['public'|'private'],
+      url, commands jsonb, icon_kind['favicon'|'url'|'initials'], icon_ref, accent, tags[], position)
+repos(id, name, description, icon_kind, icon_ref, github_url, pinned, position)
 ```
 
-## API Reference
+**Regla de visibilidad — no negociable**: la visibilidad es del NODO, nunca heredada. El filtro SQL (`WHERE visibility = 'public'`) ocurre en `listPublicTree()`, nunca en el cliente ni en un componente. Una carpeta con hijos públicos y privados (ej. "Boty": web+docs públicos, admin privado) aparece en ambas vistas, mostrando solo los hijos que correspondan — ver `pruneTree()` en `src/lib/tree.ts`.
 
-### GET /
+**`repos` no se sincroniza con la API de GitHub.** Es una lista pegada a mano por el usuario (nombre, descripción, icono, URL) — deliberado, no un descuido.
 
-SSR page. Renders `projects.json` as a searchable/filterable grid.
+## Autenticación
 
-### GET /api/login
+- `/` es pública, sin auth, SSR puro. Nunca hace `fetch` a `/api/nodes`.
+- `/app` y todo `/api/*` (excepto los `OPTIONS` de CORS) exigen un JWT válido de Cloudflare Access, verificado contra el JWKS remoto (`src/lib/access.ts`, mismo patrón que `Fit-API/src/middleware/accessAuth.ts`). Además requieren una allowlist no vacía de emails (`INDEX_PAGE_ALLOWED_EMAILS`): si falta, producción falla cerrado con 503; si el email no está listado, devuelve 403.
+- **`INDEX_PAGE_DEV_EMAIL`**: solo para `pnpm dev` local (bloqueado si `NODE_ENV=production`). Simula una identidad sin pasar por el túnel de Cloudflare. **Nunca debe estar definida en Coolify/producción.**
+- Cloudflare Access debe cubrir `index.iroak.dev/app*` y `index.iroak.dev/api/*`; el JWT de `Access 0` se valida de nuevo en origen.
 
-Redirects to `/?unlock=1`. This triggers the client-side JS to load private projects.
+## Gotcha crítico de Astro: `security.allowedDomains`
 
-**Response:** `302 Found` → `Location: /?unlock=1`
+Sin `security.allowedDomains` configurado en `astro.config.mjs`, Astro **ignora el `Host` real de cada petición y usa `"localhost"` fijo internamente** (mitigación de CVE-2025-61925 / GHSA-hr2q-hp5q-x767). Esto rompe la protección CSRF nativa (`security.checkOrigin`, activada por defecto): compara el `Origin` real del navegador contra `http://localhost` y **todo POST/PATCH/DELETE devuelve 403** sin importar qué dominio sirva la app.
 
-### GET /api/private-projects
+El fix está en `astro.config.mjs` → `security.allowedDomains`, listando `index.iroak.dev` (producción) más `localhost`/`127.0.0.1` (dev). **Si se cambia el dominio de producción o se añade un alias, hay que actualizar esta lista o el CRUD entero deja de funcionar en silencio con 403.**
 
-Proxies to the private index service. Returns an array of projects in the same format as `projects.json`.
+## Configuración
 
-**Response (200):**
-```json
-[
-  {
-    "name": "ProjectName",
-    "description": "...",
-    "icon": "/icons/name.svg",
-    "accent": "pink",
-    "tags": ["tag1"],
-    "links": [...]
-  }
-]
-```
-
-**Response (401):** `{ "error": "cloudflare_access_required" }` — when `REQUIRE_CF_ACCESS=true` and no CF Access headers present.
-
-**Response (502):** `{ "error": "private_upstream_unreachable", "attempts": [...] }` — when all upstreams fail.
-
-**CORS:** Supports `OPTIONS` preflight with `Access-Control-Allow-Credentials: true`.
-
-### GET /api/private-health
-
-Health check for the private upstream service.
-
-**Response (200):**
-```json
-{
-  "ok": true,
-  "selectedPrivateUrl": "http://index-private:3000",
-  "attempts": [
-    { "ok": true, "privateUrl": "http://index-private:3000", "status": 200, "bytes": 1234 }
-  ],
-  "elapsedMs": 45
-}
-```
-
-**Response (502):**
-```json
-{
-  "ok": false,
-  "attempts": [
-    { "ok": false, "privateUrl": "http://index-private:3000", "error": "fetch failed" }
-  ],
-  "elapsedMs": 120
-}
-```
-
-## projects.json Schema
-
-```typescript
-interface Project {
-  name: string;           // Category name (unique key for merge with private)
-  description: string;    // Short description
-  icon?: string;          // Path in public/icons/ (SVG, PNG, etc.)
-  accent?: string;        // pink | crimson | lavender | cream | peach
-  accentDark?: string;    // Optional different accent for dark theme
-  tags: string[];         // Tags for filtering
-  links: Link[];
-}
-
-interface Link {
-  name: string;           // Service name (e.g., "Proxmox", "Navidrome")
-  url?: string;           // Single URL (clickable + copiable)
-  urls?: LinkUrl[];       // Multiple URLs with labels (mutually exclusive with url)
-  command?: string;       // Legacy: single copiable command
-  commands?: Command[];   // New: array of labeled commands (preferred)
-  type: string;           // Type badge (e.g., "web", "api", "ssh", "rdp", "db")
-  description: string;    // Service description
-  visibility?: string;    // "public" | "access" | "internal" | "command"
-  host?: string;          // Host/VM/CT identifier (e.g., "pve", "ct102", "vm303")
-}
-
-interface LinkUrl {
-  label: string;          // Label (e.g., "Publica", "Interna", "LAN", "Cloudflare")
-  url: string;            // URL string
-}
-
-interface Command {
-  label: string;          // Command label (e.g., "SSH", "Restart", "Logs")
-  command: string;        // Copiable command string
-}
-```
-
-**Rules:**
-- `url` and `urls` are mutually exclusive. If `urls` is present, `url` is ignored.
-- `command` (legacy) and `commands` (new) are mutually exclusive. If `commands` is present, `command` is ignored.
-- If neither `url` nor `urls` is set, the link has no clickable URL (only commands if present).
-- URLs not starting with `http` or `rdp` get `https://` prepended automatically.
-- `accent` defaults to `pink` if not set. Valid values: `pink`, `crimson`, `lavender`, `cream`, `peach`.
-- `visibility` is for display/filtering. Values: `public`, `access`, `internal`, `command`.
-- `host` shows a small server icon badge with the host identifier.
-
-## Private Projects & Merge Logic
-
-Private projects are served from a separate service (`HomeServer-IndexPrivate`). When loaded:
-
-1. Frontend fetches `/api/private-projects`
-2. Response is an array of projects in the same `Project` format
-3. For each private project:
-   - If a public project has the **same `name`**, private links are **appended** to that project's link grid
-   - If no match exists, a **new project card** is created at the end of the grid
-4. Private links get a "Privado" badge appended to their name
-
-## Authentication Flow (Cloudflare Access)
-
-```
-1. User clicks 🔒 button
-2. → GET /api/login → 302 to /?unlock=1
-3. Browser loads /?unlock=1
-4. Client JS detects ?unlock param → calls loadPrivateProjects(false)
-5. → GET /api/private-projects (with credentials: same-origin)
-6. If CF Access is required and no session:
-   - Cloudflare intercepts → shows login page
-   - After auth → redirects back → retry fetch
-7. If CF Access not required:
-   - Proxy directly to upstream → return JSON
-8. Frontend renders private projects
-```
-
-## Configuration
-
-| Variable | Default | Description |
+| Variable | Default | Descripción |
 |----------|---------|-------------|
-| `PRIVATE_INDEX_URL` | `http://index-private:3000` | URL of the private index service (single) |
-| `PRIVATE_INDEX_URLS` | Falls back to `PRIVATE_INDEX_URL` | Comma-separated list of upstream URLs (tried in order) |
-| `REQUIRE_CF_ACCESS` | `false` | If `true`, requires Cloudflare Access headers on private endpoints |
-| `PORT` | `4321` | Server port |
-| `HOST` | `0.0.0.0` | Bind address |
-
-**`PRIVATE_INDEX_URLS`** accepts multiple URLs separated by comma. The proxy tries each in order and returns the first successful response. Example: `http://10.10.10.245:50834,http://index-private:3000`
+| `INDEX_PAGE_DATABASE_URL` | — (requerida) | DSN de Postgres. En CT110: `sslmode=no-verify` (cert autofirmado) |
+| `CF_ACCESS_TEAM_DOMAIN` | — | `iroak.cloudflareaccess.com` |
+| `CF_ACCESS_AUD` | — | Audience de la app de Access que protege `/app*` |
+| `INDEX_PAGE_ALLOWED_EMAILS` | vacío (= denegado en producción) | Allowlist obligatoria para producción; emails separados por coma |
+| `INDEX_PAGE_DEV_EMAIL` | — | Solo dev local, nunca en producción |
+| Canonical site | `https://index.iroak.dev` | Configurado en `astro.config.mjs` para el build |
+| `PORT` / `HOST` | `4321` / `0.0.0.0` | Adapter Node |
 
 ## Docker
 
-### Public only
-
-```bash
-docker build -t index-public .
-docker run --rm -p 4321:4321 index-public
-```
-
-### Full stack (public + private)
-
-Requires `HomeServer-IndexPrivate` at `../HomeServer-IndexPrivate`.
-
-```bash
-docker compose up -d --build
-```
-
-Services:
-- `index-public` on `:4321` (Astro SSR)
-- `index-private` on Docker internal network (API, port 3000)
+`docker-compose.yaml` levanta **solo Postgres para desarrollo local** (`pnpm dev` corre fuera de Docker contra él). En producción (Coolify/CT102) la app se conecta directo a CT110 — este compose nunca se usa ahí. Reemplaza al compose anterior de 2 servicios (`index-public` + `index-private`), que dependía de un repo `HomeServer-IndexPrivate` que nunca existió en disco.
 
 ## Theme
 
-Light/dark theme via `data-theme` attribute on `<html>`. User preference stored in `localStorage("homeserver-theme")`. Defaults to `dark`.
+`data-theme` en `<html>`, persistido en `localStorage("homeserver-theme")`, default `dark`. Aplicado con un script inline sin defer en `Layout.astro` (antes del primer paint, evita el FOUC que tenía el índice anterior). El toggle vive en Ajustes (`/app`, pestaña Ajustes) — ver `src/components/app/use-theme.tsx`.
 
-Theme tokens in `styles/global.css` use CSS custom properties (`--ink`, `--ink-soft`, `--card-bg`, etc.).
+## PWA
 
-## Category Map
+Solo la portada pública opta por `pwa` en `Layout.astro`: enlaza `public/manifest.webmanifest` y registra `public/sw.js`. El service worker tiene scope `/`, pero solo cachea assets con hash de `/_astro/`; navegaciones SSR y todas las rutas `/app` y `/api` siguen siendo network-only para no persistir datos privados ni respuestas de usuario.
 
-Projects are grouped by category. The `name` field is the category name and the merge key with
-private projects.
+## Las 4 pestañas de /app — por qué NO son rutas
 
-| Category | accent | Public links | Private links (merge) |
-|----------|--------|-------------|----------------------|
-| **Cliente** | pink | Boty Web/Empresas/Docs, CheckerMicrosoft | Boty API/Admin, CheckerMS internal |
-| **Media** | peach | Navidrome, Jellyfin | Navidrome/Jellyfin internal, Suwayomi, Grammy |
-| **Transporte** | lavender | RedTransporte Web/API | RedTransporte API internal |
-| **Desarrollo** | crimson | Amapola, AI Prices, damaparts | Amapola internal/webhook, Port Scanner, AI Prices internal |
-| **Infra** | cream | *(no public)* | Proxmox, OPNsense, Coolify, NPM, MariaDB |
-| **Acceso Remoto** | crimson | *(no public)* | RDP/SSH/SFTP commands, VPS-CL streams |
+`AppShell` (`src/components/app/app-shell.tsx`) mantiene Público/Privado/Proyectos/Ajustes como estado de React, no como rutas de Astro. Razón: `ClientRouter` de Astro no restaura el scroll de contenedores internos (solo el del `document`) — con rutas reales, cambiar de pestaña perdería la posición de scroll del árbol en cada vuelta ([withastro/roadmap#952](https://github.com/withastro/roadmap/discussions/952)). El árbol completo y los repos se cargan una vez al montar `/app` (ya pasó por Access) y las pestañas Público/Privado filtran en memoria sobre el mismo dato con `pruneTree()`.
 
-## How to Add a Service
+## Cómo agregar un servicio
 
-### Step 1: Determine public vs private
+Ya no se edita un JSON. Desde `/app`, tocar el FAB → "Nuevo enlace o carpeta", completar el formulario (nombre, URL, visibilidad, tags, comandos copiables opcionales). El logo se resuelve solo por favicon del propio dominio — sin campo de subida.
 
-- **PUBLIC** (URL is already publicly resolvable via DNS, no auth to view) → edit `src/data/projects.json`
-- **PRIVATE** (internal IP, admin dashboard, SSH/RDP/SFTP command, behind Cloudflare Access) → edit
-  `../HomeServer-IndexPrivate/data/private-projects.json`
+## Cómo agregar un repo de referencia
 
-### Step 2: Pick the category
+Desde `/app` → pestaña Proyectos → FAB → "Nuevo repo de referencia". Solo nombre, descripción, URL de GitHub (debe ser `github.com`) e icono opcional. Sin sincronización automática — es intencional.
 
-Use the category map above. If a service doesn't fit any existing category, create a new one.
+## Microsite `/cypht/*`
 
-### Step 3: Edit the JSON
-
-```json
-{
-  "name": "CategoryName",
-  "description": "...",
-  "accent": "color",
-  "tags": ["tag1"],
-  "links": [
-    {
-      "name": "Service Name",
-      "url": "https://example.com",
-      "type": "web",
-      "description": "What it does."
-    }
-  ]
-}
-```
-
-For services with both public and internal URLs, use `urls` (multi-URL) in the **private** JSON:
-```json
-{
-  "name": "Service",
-  "urls": [
-    { "label": "Publica", "url": "https://public.example.com" },
-    { "label": "Interna", "url": "http://10.10.10.x:port" }
-  ],
-  "type": "web",
-  "description": "...",
-  "command": "optional-copiable-command"
-}
-```
-
-### Step 4: Icons (optional)
-
-Place SVG/PNG in `public/icons/` and reference with `"icon": "/icons/name.svg"`.
-If no icon, omit the field — the UI shows the first 2 letters of the name.
-
-### Step 5: Commit and push
-
-Both repos deploy via Coolify. Push triggers redeploy if auto-deploy is configured.
-
-## Link Type Reference
-
-| Type | Use for | Example |
-|------|---------|---------|
-| `web` | Web UIs, apps | Navidrome, Jellyfin, Amapola |
-| `api` | HTTP APIs | Boty API, CheckerMS, RedTransporte |
-| `docs` | Documentation | Boty Docs |
-| `admin` | Admin/management panels | Proxmox, OPNsense, Coolify, NPM |
-| `db` | Database connections | MariaDB |
-| `ssh` | SSH access commands | `ssh -p 20002 user@vps` |
-| `sftp` | SFTP access + web UIs | SFTPGo |
-| `rdp` | RDP access commands | `mstsc /v:host:port` |
-| `tunnel` | Tunnel/VPN commands | cloudflared, WireGuard |
-| `tool` | Utility tools | Port Scanner |
+4 archivos (`src/pages/cypht/{index,privacy,terms}.astro` + `src/components/CyphtPublicPage.astro`) para el OAuth/legal de Iroak Mail. **Independiente del índice**, comparte `Layout.astro` y las variables legacy de `global.css` (`--ink`, `--accent`, `.prose-iroak`, `.card`). No tocar su sistema de diseño al iterar sobre `/` o `/app`.
 
 ## Infra Inventory Source
 
-The authoritative source for what exists in the homelab is the `Serverhome-Proxmox` repo
-(`/home/kaori/projects/Proxmox/`). Key docs:
-
-- `AGENTS.md` — overview and navigation index
-- `PROXMOX.md` — host inventory, all VMs/CTs
-- `VMs/*.md` — per-machine details (IPs, ports, URLs)
-- `CLOUDFLARE.md` — tunnels, DNS records, Access policies
-- `VPS-CL.md` — NPM streams (TCP/UDP forwards)
-- `VPS-BOTY.md` — BOTY stack on VPS
-
-When adding a service, check these docs for the correct URLs, IPs, ports, and auth requirements.
+`/home/kaori/projects/Proxmox/` — `AGENTS.md`, `PROXMOX.md`, `VMs/*.md`, `CLOUDFLARE.md`. Fuente de verdad de IPs, puertos, dominios y políticas de Access del homelab.
 
 ## Gotchas
 
-- No test framework configured — manual verification only
-- Private projects require the `HomeServer-IndexPrivate` repo to be present
-- `PRIVATE_INDEX_URLS` overrides `PRIVATE_INDEX_URL` (not additive)
-- CORS is handled per-endpoint, not globally
-- The `?unlock=1` query param triggers private project loading on page load
-- Icons must be placed in `public/icons/` before referencing in `projects.json`
+- Sin test framework — verificación manual (build + `astro check` + smoke test con `curl`).
+- `docker-compose.yaml` es solo para Postgres de dev; no confundir con un stack de producción.
+- El `Dockerfile` corre `pnpm install --frozen-lockfile` (dos veces: build completo, luego `--prod` para el runtime) — un lockfile desincronizado rompe el build, a propósito.
+- `pnpm db:seed` importa una sola vez las 4 carpetas y 6 enlaces públicos de `src/data/projects.json` de la versión anterior. Falla si ya hay nodos, para preservar el catálogo existente. No inventa ni inicializa enlaces privados.
+- `CopyButton` usa `document.execCommand` como fallback fuera de secure context (LAN por HTTP) — API deprecada pero sin alternativa estándar para ese caso.
+- Los repos de `/api/repos` no validan que la URL de GitHub exista de verdad, solo que el hostname sea `github.com`.

@@ -1,0 +1,37 @@
+---
+import Layout from "../layouts/Layout.astro";
+import "../styles/global.css";
+import { AppShell } from "../components/app/app-shell";
+import { verifyAccessRequest } from "../lib/access";
+
+/**
+ * /app — todo lo privado: árbol completo, repos, formularios de
+ * escritura. Cloudflare Access protege este path en el edge (pool
+ * "Access 0"). Esta verificación
+ * server-side es defensa en profundidad: si el ingress de Cloudflare
+ * cambiara o alguien alcanzara el puerto sin pasar por el túnel, esta
+ * página sigue exigiendo un JWT válido antes de renderizar el shell.
+ *
+ * A diferencia de los endpoints /api/*, aquí SÍ importa fallar visible:
+ * un usuario sin acceso debe ver un mensaje claro, no un shell vacío
+ * que falla en silencio al hacer fetch.
+ */
+const access = await verifyAccessRequest(Astro.request);
+---
+
+<Layout title="Panel — Index" description="Panel privado de administración." noindex>
+  {
+    access.ok ? (
+      <AppShell email={access.identity.email} client:only="react" />
+    ) : (
+      <div class="flex h-dvh flex-col items-center justify-center gap-3 px-6 text-center">
+        <p class="text-lg font-semibold" style="color: var(--ink)">Acceso restringido</p>
+        <p class="text-sm" style="color: var(--ink-soft)">
+          {access.status === 503
+            ? "Cloudflare Access no está configurado en este entorno."
+            : "Necesitas iniciar sesión con una cuenta autorizada."}
+        </p>
+      </div>
+    )
+  }
+</Layout>

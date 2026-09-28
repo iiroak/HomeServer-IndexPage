@@ -1,7 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /app
+Disallow: /api/
 
-Disallow: /api/private-projects
-Disallow: /api/login
-
-Sitemap: https://iroak.cl/sitemap.xml
+Sitemap: https://iroak.dev/sitemap-index.xml
