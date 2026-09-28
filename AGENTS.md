@@ -6,7 +6,7 @@
 pnpm install
 docker compose up -d          # Postgres local de desarrollo
 pnpm db:migrate                # Aplica src/db/schema.sql (requiere INDEX_PAGE_DATABASE_URL)
-pnpm db:seed                   # Catálogo público heredado; solo con nodes vacío
+pnpm db:seed                   # Catálogo heredado + UIs verificadas en Proxmox; idempotente
 pnpm dev                       # http://localhost:4321
 pnpm build                     # Build de producción (Astro server mode)
 pnpm astro check                # Type-check
@@ -26,7 +26,7 @@ src/
   db/
     schema.sql              # Tablas nodes + repos, funciones IMMUTABLE para índices GIN
     migrate.mjs             # Runner de migraciones, ejecutable dentro del contenedor
-    seed.mjs                # Seed único e idempotente del catálogo público heredado
+    seed.mjs                # Seeds idempotentes: catálogo heredado + inventario de UIs documentadas
     pool.ts                 # Pool de conexión compartido
   lib/
     types.ts                # ServiceNode, ServiceNodeTree, RepoRef
@@ -129,6 +129,6 @@ Desde `/app` → pestaña Proyectos → FAB → "Nuevo repo de referencia". Solo
 - Sin test framework — verificación manual (build + `astro check` + smoke test con `curl`).
 - `docker-compose.yaml` es solo para Postgres de dev; no confundir con un stack de producción.
 - El `Dockerfile` corre `pnpm install --frozen-lockfile` (dos veces: build completo, luego `--prod` para el runtime) — un lockfile desincronizado rompe el build, a propósito.
-- `pnpm db:seed` importa una sola vez las 4 carpetas y 6 enlaces públicos de `src/data/projects.json` de la versión anterior. Falla si ya hay nodos, para preservar el catálogo existente. No inventa ni inicializa enlaces privados.
+- `pnpm db:seed` aplica marcadores idempotentes: `0001` importa el catálogo público legado solo si `nodes` está vacío; `0002` añade 5 carpetas y 40 UIs explícitas de Proxmox (5 públicas, 35 privadas), incluyendo un enlace privado en `Cliente`. El catálogo privado puede contener hostnames accesibles desde Internet, pero no se devuelve en la raíz pública. APIs y webhooks no se seedearon.
 - `CopyButton` usa `document.execCommand` como fallback fuera de secure context (LAN por HTTP) — API deprecada pero sin alternativa estándar para ese caso.
 - Los repos de `/api/repos` no validan que la URL de GitHub exista de verdad, solo que el hostname sea `github.com`.
