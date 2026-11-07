@@ -122,7 +122,7 @@ Desde `/app` → pestaña Proyectos → FAB → "Nuevo repo de referencia". Solo
 
 ## Infra Inventory Source
 
-`/home/kaori/projects/Proxmox/` — `AGENTS.md`, `PROXMOX.md`, `VMs/*.md`, `CLOUDFLARE.md`. Fuente de verdad de IPs, puertos, dominios y políticas de Access del homelab.
+`/home/kaori/projects/Proxmox/` — `AGENTS.md`, `Infrastructure/Proxmox.md`, `VMs/*.md`, `Infrastructure/Cloudflare.md`. Fuente de verdad de IPs, puertos, dominios y políticas de Access del homelab.
 
 ## Gotchas
 

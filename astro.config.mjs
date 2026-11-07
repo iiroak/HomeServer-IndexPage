@@ -29,7 +29,7 @@ export default defineConfig({
     // `url.origin === "http://localhost"`.
     //
     // index.iroak.dev es el hostname real detrás del túnel cloudflared de
-    // CT102 (ver Proxmox/VMs/CT102_Docker.md) — cloudflared reenvía el Host
+    // CT102 (ver Proxmox/VMs/CT102_Coolify/CloudflareTunnel.md) — cloudflared reenvía el Host
     // original, así que no hace falta cubrir wildcards. localhost/127.0.0.1
     // son para `pnpm dev` y pruebas manuales.
     allowedDomains: [
